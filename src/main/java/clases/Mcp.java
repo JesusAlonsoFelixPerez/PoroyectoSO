@@ -2,20 +2,20 @@ package clases;
 
 public class Mcp {
     private char id;
-    private int tiempoLlegada;
+    //private int tiempoLlegada;
     private int prioridad;
     private int tiempoRestante;
     private int estado;
     private int VecesUsado;
     private int intentoDesbloquear;
 
-    public Mcp(char id, int tiempoLlegada) {
+    public Mcp(char id) {
         this.id = id;
-        this.tiempoLlegada = tiempoLlegada;
+        //this.tiempoLlegada = tiempoLlegada;
         this.prioridad = 1;
-        this.tiempoRestante = (int) (Math.random() * (10 - 3) + 1)+3;
+        this.tiempoRestante = (int) (Math.random() * 8) + 3;
         this.estado = (int)(Math.random() * 2);
-        this.VecesUsado = 0;
+        this.VecesUsado = 1;
         this.intentoDesbloquear = 0;
     }
 
@@ -69,7 +69,7 @@ public class Mcp {
     public String toString() {
         return "Clases.Mcp{" +
                 "id=" + id +
-                ", tiempoLlegada=" + tiempoLlegada +
+                //", tiempoLlegada=" + tiempoLlegada +
                 ", prioridad=" + prioridad +
                 ", tiempoRestante=" + tiempoRestante +
                 ", estado=" + estado +
