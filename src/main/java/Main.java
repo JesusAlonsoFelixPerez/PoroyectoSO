@@ -1,6 +1,5 @@
-import clases.Mcp;
-
 import algoritmos.*;
+
 import java.util.Scanner;
 
 public class Main {
@@ -9,7 +8,8 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         System.out.println("-----Elija el Algoritmo-----");
         System.out.println("1- Multiples Colas de Prioridad");
-        System.out.println("2- Cerrar");
+        System.out.println("2- Planificacion Garantizada");
+        System.out.println("3- Cerrar");
         System.out.println("----------------------------");
         //int eleccion = sc.nextInt();
         int eleccion = 1;
@@ -20,7 +20,12 @@ public class Main {
                 break;
 
             case 2:
+                PlanificacionGarantizada.ejecutar();
+                break;
+
+            case 3:
                 System.out.println("Adios");
+                break;
         }
     }
 }

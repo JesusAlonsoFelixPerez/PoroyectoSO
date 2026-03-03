@@ -1,18 +1,14 @@
 package clases;
 
-public class Mcp {
+public class procesos {
     private char id;
-    //private int tiempoLlegada;
-    private int prioridad;
     private int tiempoRestante;
     private int estado;
     private int VecesUsado;
     private int intentoDesbloquear;
 
-    public Mcp(char id) {
+    public procesos(char id) {
         this.id = id;
-        //this.tiempoLlegada = tiempoLlegada;
-        this.prioridad = 1;
         this.tiempoRestante = (int) (Math.random() * 8) + 3;
         this.estado = (int)(Math.random() * 2);
         this.VecesUsado = 1;
@@ -25,9 +21,6 @@ public class Mcp {
     public void setId(char id) {
         this.id = id;
     }
-    public int getPrioridad() {
-        return prioridad;
-    }
 
     public int getTiempoRestante() {
         return tiempoRestante;
@@ -35,10 +28,6 @@ public class Mcp {
 
     public void setTiempoRestante(int tiempoRestante) {
         this.tiempoRestante = tiempoRestante;
-    }
-
-    public void setPrioridad(int prioridad) {
-        this.prioridad = prioridad;
     }
 
     public int getIntentoDesbloquear() {
@@ -67,14 +56,11 @@ public class Mcp {
 
     @Override
     public String toString() {
-        return "Clases.Mcp{" +
-                "id=" + id +
-                //", tiempoLlegada=" + tiempoLlegada +
-                ", prioridad=" + prioridad +
-                ", tiempoRestante=" + tiempoRestante +
-                ", estado=" + estado +
-                ", VecesUsado=" + VecesUsado +
-                ", intentoDesbloquear=" + intentoDesbloquear +
-                '}';
+        return String.format("%-7s | %-10d | %-6s | %-5d | %-7d",
+                id,
+                tiempoRestante,
+                estado,
+                VecesUsado,
+                intentoDesbloquear);
     }
 }

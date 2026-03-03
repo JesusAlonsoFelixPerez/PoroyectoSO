@@ -1,9 +1,8 @@
 package utilidades;
 
-import java.util.ArrayList;
 import clases.*;
 public class ProcesoBloqueado {
-    public static boolean estaBloqueado(Mcp p) {
+    public static boolean estaBloqueado(procesos p) {
         if (p.getEstado() == 1) {
             return false;
         } else{
