@@ -4,28 +4,90 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("");
+        int eleccion;
+
         Scanner sc = new Scanner(System.in);
         System.out.println("-----Elija el Algoritmo-----");
-        System.out.println("1- Multiples Colas de Prioridad");
-        System.out.println("2- Planificacion Garantizada");
-        System.out.println("3- Cerrar");
+        System.out.println("1- Round Robin ");
+        System.out.println("2- Prioridades ");
+        System.out.println("3- Multiples Colas de Prioridad ");
+        System.out.println("4- Proceso mas corto primero (SJF)");
+        System.out.println("5- Planificacion Garantizada");
+        System.out.println("6- Boleto de loteria");
+        System.out.println("7- Participacion Equitativa");
+        System.out.println("8- Cerrar");
         System.out.println("----------------------------");
-        //int eleccion = sc.nextInt();
-        int eleccion = 1;
+        eleccion = sc.nextInt();
 
         switch (eleccion) {
             case 1:
-                MultiplesColasPrioridad.MCP();
+                eleccion = 0;
+                System.out.println("===Round Robin===");
+                System.out.println("1- Apropiativo");
+                System.out.println("2- No Apropiativo");
+                eleccion = sc.nextInt();
+
+                if(eleccion == 1){
+                    RoundRobinAprop.ejecutar();
+                } else{
+                    RoundRobinNoApropiativo.ejecutar();
+                }
                 break;
 
             case 2:
-                PlanificacionGarantizada.ejecutar();
+                eleccion = 0;
+                System.out.println("===Prioridades===");
+                System.out.println("1- Apropiativo");
+                System.out.println("2- No Apropiativo");
+                sc.nextInt();
+                eleccion = sc.nextInt();
+
+                if(eleccion == 1){
+                    PrioridadesApropiativo.ejecutar();
+                } else{
+                    PrioridadesNoApropiativo.ejecutar();
+                }
                 break;
 
             case 3:
+                MultiplesColasPrioridad.MCP();
+                break;
+
+            case 4:
+                MasCorto.ejecutar();
+                break;
+
+            case 5:
+                PlanificacionGarantizada.ejecutar();
+                break;
+
+            case 6:
+                eleccion = 0;
+                System.out.println("===Boletos de Loteria===");
+                System.out.println("1- Apropiativo");
+                System.out.println("2- No Apropiativo");
+                eleccion = sc.nextInt();
+
+                if(eleccion == 1){
+                    LoteriaApropiativa.ejecutar();
+                } else{
+                    LoteriaNoApropiativo.ejecutar();
+                }
+                break;
+
+            case 7:
+                ParticipacionEquitativa.ejecutar();
+                break;
+
+            case 8:
                 System.out.println("Adios");
                 break;
+
+            default:
+                System.out.println("Eleccion no valido");
+                System.out.println("Adios");
+                break;
+            
         }
     }
 }
