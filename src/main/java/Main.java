@@ -14,7 +14,7 @@ public class Main {
         System.out.println("4- Proceso mas corto primero (SJF)");
         System.out.println("5- Planificacion Garantizada");
         System.out.println("6- Boleto de loteria");
-        System.out.println("7- Participacion Equitativa");
+        System.out.println("7- Planificacion Equitativa");
         System.out.println("8- Cerrar");
         System.out.println("----------------------------");
         eleccion = sc.nextInt();
@@ -75,7 +75,7 @@ public class Main {
                 break;
 
             case 7:
-                ParticipacionEquitativa.ejecutar();
+                PlanificacionEquitativa.ejecutar();
                 break;
 
             case 8:
