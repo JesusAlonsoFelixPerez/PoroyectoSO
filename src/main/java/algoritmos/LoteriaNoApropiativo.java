@@ -8,7 +8,7 @@ package algoritmos;
 	        String nombre;
 	        int prioridad;
 	        int boletos;
-	        int tiempoRafaga;    // Tiempo de ráfaga (tiempo que necesita ejecutarse)
+	        int tiempoRafaga;    
 	        int tiempoRestante;
 	        
 	        public Proceso(int id, String nombre, int prioridad, int tiempoRafaga) {
@@ -41,14 +41,14 @@ package algoritmos;
 	    public void agregarProceso(Proceso p) {
 	        procesos.add(p);
 	        totalBoletos += p.boletos;
-	        System.out.println("✓ Proceso agregado: " + p.nombre);
+	        System.out.println("Proceso agregado: " + p.nombre);
 	    }
 	    
 	    public Proceso seleccionarGanador() {
 	        if (procesos.isEmpty()) return null;
 	        
 	        int boletoGanador = random.nextInt(totalBoletos) + 1;
-	        System.out.println("\n🎲 Boleto ganador: " + boletoGanador + " de " + totalBoletos);
+	        System.out.println("Boleto ganador: " + boletoGanador + " de " + totalBoletos);
 	        
 	        int acumulado = 0;
 	        for (Proceso p : procesos) {
@@ -59,33 +59,33 @@ package algoritmos;
 	        }
 	        return procesos.get(0);
 	    }
-	    
+	    //Checar los apuntes de la clase
 	    public void LoteriaApropiativo() {
-	        System.out.println("\n=== MODO NO APROPIATIVO ===");
-	        System.out.println("Los procesos se ejecutan hasta terminar\n");
+	        System.out.println("Modo No apropiativo");
+	        System.out.println("Los procesos se ejecutan hasta terminar");
 	        
 	        int ciclo = 1;
 	        while (!procesos.isEmpty()) {
-	            System.out.println("━━━ CICLO " + ciclo + " ━━━");
+	            System.out.println("Ciclo " + ciclo);
 	            
-	            // 1. Seleccionar proceso
+	            // Seleccionar proceso
 	            Proceso actual = seleccionarGanador();
-	            System.out.println("▶ Proceso seleccionado: " + actual.nombre);
+	            System.out.println("Proceso seleccionado: " + actual.nombre);
 	            
-	            // 2. EJECUCIÓN COMPLETA (NO APROPIATIVO)
-	            System.out.println("   Ejecutando proceso COMPLETO...");
+	            // Ejecucion completa no apropiativo
+	            System.out.println("   Ejecutando proceso completo...");
 	            
 	            // Simular ejecución completa
 	            actual.tiempoRestante = 0;  // Termina en este ciclo
 	            
-	            System.out.println("   ✓ Proceso terminado después de " + actual.tiempoRafaga + " unidades");
+	            System.out.println("Proceso terminado después de " + actual.tiempoRafaga + " unidades");
 	            
-	            // 3. Remover proceso terminado
+	            // Remover proceso terminado
 	            totalBoletos -= actual.boletos;
 	            procesos.remove(actual);
 	            
 	            // Mostrar procesos restantes
-	            System.out.println("\nProcesos restantes: " + procesos.size());
+	            System.out.println("Procesos restantes: " + procesos.size());
 	            for (Proceso p : procesos) {
 	                System.out.println("   " + p);
 	            }
@@ -95,19 +95,19 @@ package algoritmos;
 	            try { Thread.sleep(1000); } catch (Exception e) {}
 	        }
 	        
-	        System.out.println("\n✨ TODOS LOS PROCESOS TERMINARON");
+	        System.out.println("Todos los procesos terminaron");
 	    }
 	    
 	    public static void ejecutar() {
 	        LoteriaNoApropiativo planificador = new LoteriaNoApropiativo();
 	        
-	        // Crear procesos
+	        // No se me vuelvan a olvidar los procesos
 	        planificador.agregarProceso(new Proceso(1, "Google", 5, 3));
 	        planificador.agregarProceso(new Proceso(2, "Word", 2, 4));
 	        planificador.agregarProceso(new Proceso(3, "Fortnite", 8, 2));
 	        planificador.agregarProceso(new Proceso(4, "WhatsApp", 1, 5));
 	        
-	        // Ejecutar
+	     
 	        planificador.LoteriaApropiativo();
 	    }
 	}

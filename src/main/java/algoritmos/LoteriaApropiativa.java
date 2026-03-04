@@ -10,9 +10,9 @@ public class LoteriaApropiativa {
         String nombre;
         int prioridad;
         int boletos;
-        int tiempoRafaga;    // Tiempo total necesario
-        int tiempoRestante;   // Tiempo que falta
-        int tiempoEjecutado;  // Tiempo ya ejecutado
+        int tiempoRafaga;    
+        int tiempoRestante;   
+        int tiempoEjecutado;  
         
         public Proceso(int id, String nombre, int prioridad, int tiempoRafaga) {
             this.id = id;
@@ -23,7 +23,7 @@ public class LoteriaApropiativa {
             this.tiempoRestante = tiempoRafaga;
             this.tiempoEjecutado = 0;
         }
-        
+        //Seguir Mañana ya me dio hueva
         public String toString() {
             return String.format("%s (ID:%d, Prioridad:%d, Boletos:%d, Progreso:%d/%d)", 
                                nombre, id, prioridad, boletos, tiempoEjecutado, tiempoRafaga);
@@ -33,19 +33,19 @@ public class LoteriaApropiativa {
     private List<Proceso> procesos;
     private int totalBoletos;
     private Random random;
-    private int quantum;  // Quantum de tiempo para cada ejecución
+    private int quantum;  // Quantum ejecución
     
-    // Constructor (CORREGIDO)
+    // Constructor corregido por 837 vez
     public LoteriaApropiativa() {
-        this.procesos = new ArrayList<>();  // ← IMPORTANTE: Inicializar la lista
+        this.procesos = new ArrayList<>();  
         this.totalBoletos = 0;
         this.random = new Random();
-        this.quantum = 2;  // Quantum por defecto
+        this.quantum = 2;  
     }
     
     // Constructor con quantum personalizado
     public LoteriaApropiativa(int quantum) {
-        this.procesos = new ArrayList<>();  // ← IMPORTANTE: Inicializar la lista
+        this.procesos = new ArrayList<>();  
         this.totalBoletos = 0;
         this.random = new Random();
         this.quantum = quantum;
@@ -54,14 +54,14 @@ public class LoteriaApropiativa {
     public void agregarProceso(Proceso p) {
         procesos.add(p);
         totalBoletos += p.boletos;
-        System.out.println("✓ Proceso agregado: " + p.nombre);
+        System.out.println("Proceso agregado: " + p.nombre);
     }
     
     public Proceso seleccionarGanador() {
         if (procesos.isEmpty()) return null;
         
         int boletoGanador = random.nextInt(totalBoletos) + 1;
-        System.out.println("\n🎲 Boleto ganador: " + boletoGanador + " de " + totalBoletos);
+        System.out.println("Boleto ganador: " + boletoGanador + " de " + totalBoletos);
         
         int acumulado = 0;
         for (Proceso p : procesos) {
@@ -74,40 +74,40 @@ public class LoteriaApropiativa {
     }
     
     public void LoteriaNoApropiativo() {
-        System.out.println("\n=== MODO APROPIATIVO ===");
+        System.out.println("Modo Apropiativo");
         System.out.println("Quantum por proceso: " + quantum + " unidades");
-        System.out.println("Los procesos pueden ser interrumpidos\n");
+        System.out.println("Los procesos pueden ser interrumpidos");
         
         int ciclo = 1;
         int tiempoGlobal = 0;
         
         while (!procesos.isEmpty()) {
-            System.out.println("━━━ CICLO " + ciclo + " (Tiempo: " + tiempoGlobal + ") ━━━");
+            System.out.println("Ciclo" + ciclo + " (Tiempo: " + tiempoGlobal + ") ━━━");
             
-            // 1. Seleccionar proceso por lotería
+            // Seleccionar proceso por lotería
             Proceso actual = seleccionarGanador();
-            System.out.println("▶ Proceso seleccionado: " + actual.nombre);
+            System.out.println("Proceso seleccionado: " + actual.nombre);
             
-            // 2. EJECUCIÓN PARCIAL (APROPIATIVO)
+            // Ejecucion Parcial apropiativo
             int tiempoEjecucion = Math.min(quantum, actual.tiempoRestante);
-            System.out.println("   Ejecutando por " + tiempoEjecucion + " unidades...");
+            System.out.println("Ejecutando por " + tiempoEjecucion + " unidades...");
             
-            // Actualizar tiempos
+            
             actual.tiempoEjecutado += tiempoEjecucion;
             actual.tiempoRestante -= tiempoEjecucion;
             tiempoGlobal += tiempoEjecucion;
             
-            System.out.println("   Progreso: " + actual.tiempoEjecutado + "/" + actual.tiempoRafaga);
+            System.out.println("Progreso: " + actual.tiempoEjecutado + "/" + actual.tiempoRafaga);
             
-            // 3. Verificar si el proceso terminó
+            // Verificar si el proceso terminó
             if (actual.tiempoRestante <= 0) {
-                System.out.println("   ✓ PROCESO COMPLETADO");
+                System.out.println("Proceso Completado");
                 totalBoletos -= actual.boletos;
                 procesos.remove(actual);
             }
             
-            // Mostrar estado
-            System.out.println("\nProcesos restantes: " + procesos.size());
+            // Mostrar estado pedir asesoria a la profe
+            System.out.println("Procesos restantes: " + procesos.size());
             for (Proceso p : procesos) {
                 System.out.println("   " + p);
             }
@@ -117,22 +117,22 @@ public class LoteriaApropiativa {
             try { Thread.sleep(500); } catch (Exception e) {}
         }
         
-        System.out.println("\n✨ TODOS LOS PROCESOS TERMINARON");
+        System.out.println("Todos los procesos terminados");
         System.out.println("Tiempo total de ejecución: " + tiempoGlobal);
     }
     
     public static void ejecutar() {
-        // Crear planificador con quantum de 2 unidades
+        //Planificador (No se que falla seguir mañana no olvidar procesos)
         LoteriaApropiativa planificador = new LoteriaApropiativa(2);
         
-        // Crear procesos
-        System.out.println("=== CREANDO PROCESOS ===");
+        
+        System.out.println("Creando procesos y ejecutor");
         planificador.agregarProceso(new Proceso(1, "Google", 5, 3));
         planificador.agregarProceso(new Proceso(2, "Word", 2, 4));
         planificador.agregarProceso(new Proceso(3, "Fortnite", 8, 2));
         planificador.agregarProceso(new Proceso(4, "WhatsApp", 1, 5));
         
-        // Ejecutar
+       
         planificador.LoteriaNoApropiativo();
     }
 }
