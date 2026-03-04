@@ -35,7 +35,7 @@ package algoritmos;
 	        random = new Random();
 	        try (Scanner scanner = new Scanner(System.in)) {
 				
-			};
+			}
 	    }
 	    
 	    public void agregarProceso(Proceso p) {
