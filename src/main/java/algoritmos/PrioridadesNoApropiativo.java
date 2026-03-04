@@ -42,10 +42,10 @@ public class PrioridadesNoApropiativo {
         
         while (terminados < numProcesos && tiempoActual < 100) {
             
-            // Mostrar estado
+           
             System.out.println("\n--- Tiempo " + tiempoActual + " ---");
             
-            // Buscar proceso de mayor prioridad entre los listos
+           
             int actual = -1;
             for (int i = 0; i < numProcesos; i++) {
                 if (estado[i].equals("Listo")) {
@@ -55,7 +55,7 @@ public class PrioridadesNoApropiativo {
                 }
             }
             
-            // Si no hay listos, manejar bloqueados
+            
             if (actual == -1) {
                 System.out.println("  No hay procesos listos");
                 
@@ -83,10 +83,9 @@ public class PrioridadesNoApropiativo {
                 continue;
             }
             
-            // Ejecutar proceso (hasta terminar)
+          
             System.out.println("  Ejecutando P" + id[actual] + " (Prioridad " + prioridad[actual] + ") hasta terminar");
             
-            // Posibilidad de bloqueo
             if (rand.nextInt(10) < 3) {
                 System.out.println("    P" + id[actual] + " se BLOQUEA");
                 bloqueos[actual]++;
@@ -96,7 +95,7 @@ public class PrioridadesNoApropiativo {
                 continue;
             }
             
-            // Ejecuta todo su tiempo restante
+       
             int tiempoEjecutado = tiempo[actual];
             tiempoActual += tiempoEjecutado;
             tiempo[actual] = 0;

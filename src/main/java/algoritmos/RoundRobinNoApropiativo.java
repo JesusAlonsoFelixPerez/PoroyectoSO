@@ -7,7 +7,7 @@ public class RoundRobinNoApropiativo {
     public void RoundRobinNoApropiativo() {
         Random rand = new Random();
         
-        // Datos de procesos usando arreglos simples
+        // Datos 
         int numProcesos = rand.nextInt(5) + 3; // 3-7 procesos
         int[] id = new int[numProcesos];
         int[] tiempo = new int[numProcesos];
