@@ -29,6 +29,7 @@ public class PlanificacionGarantizada {
 
         System.out.println("--------------------------------------------------");
         System.out.println("Proceso | T.Restante | Estado | V.Usado | Int.Desbloeo");
+
         // Crear procesos
         for (int i = 0; i < numProcesos; i++) {
             procesos p = new procesos((char) (i + 65));
@@ -37,36 +38,22 @@ public class PlanificacionGarantizada {
             enEjecucion.add(p);
             System.out.println(p.toString());
         }
-        //verifica si el tiempo del proceso esta repetido
-        System.out.println("================================================================");
-        for (int i = 0; i < numProcesos; i++) {
-            for (int j = 0; j <numProcesos ; j++) {
-                if(procesos.get(i).getTiempoRestante() == procesos.get(j).getTiempoRestante() && procesos.get(i).getId() != procesos.get(j).getId()) {
-                    System.out.println(procesos.get(i).toString());
-                    System.out.println(procesos.get(j).toString());
-                    System.out.println(procesos.get(i).getTiempoRestante() == procesos.get(j).getTiempoRestante());
-                    procesos.get(i).setEsRepetido(true);
-                }
-            }
-        }
-        System.out.println("================================================================");
-
-        System.out.println("--------------------------------------------------\n");
         // llevar el control de uso de la cpu
         HashMap<procesos, Integer> tiempoUsado = new HashMap<>();
-        for (procesos p : procesos) {
+        for (procesos p : procesos) {//un bucle que recorre todos los procesos y a todos le agrega un valor inicial de 0
             tiempoUsado.put(p, 0);
         }
 
-        //bucle principal
         while (tiempo < tiempoMonitoreo && !procesos.isEmpty()) {
+            //entra en el bucle mientras mientras que el tiempo sea menor al tiempo de monitoreo y 
+            // cuando los procesos no se encuentren vacios
 
             procesos actual = null;
             double menorProporcion = Double.MAX_VALUE;
 
             // busca el más atrasado proporcionalmente
-            for (procesos p : procesos) {
-                if (p.getTiempoRestante() > 0) {
+            for (procesos p : procesos) { //recorre todos lo proceso
+                if (p.getTiempoRestante() > 0) { //verifica si aun tiene tiempo restante
                     double proporcion;
 
                     if (tiempo == 0) {
@@ -75,9 +62,9 @@ public class PlanificacionGarantizada {
                         proporcion = (double) tiempoUsado.get(p) / tiempo;
                     }
 
-                    if (proporcion < menorProporcion) {
-                        menorProporcion = proporcion;
-                        actual = p;
+                    if (proporcion < menorProporcion) {//compara el proceso con el de mayor proporcion y si es menor entra en el for
+                        menorProporcion = proporcion; //el proceso pasa a hacer el de meor porporcion
+                        actual = p;//selecciona el proceso de menor proporcion para ejecutarlo
                     }
                 }
             }
@@ -100,42 +87,15 @@ public class PlanificacionGarantizada {
                 tiempoAEjecutar = tiempoMonitoreo - tiempo;
             }
 
-            if(actual.getTiempoRestante() < 0){
-                actual.setTiempoRestante(0);
-            }
-
-
+            System.out.println("Tiempo [" + tiempo + "]\tSe ejecuta Proceso " + actual.getId() + " (Uso " + tiempoAEjecutar + " Unidades de Tiempo y le quedan: " + (actual.getTiempoRestante() - tiempoAEjecutar) + ", Unidades de tiempo que le tocaban "+ tiempoAEjecutar * 2 + " )");
+            
             // simula la ejecución
-            if (actual.getEsRepetido() == true){
-                int tiempoUsadoProceso = (tiempoAEjecutar * 2);
-                int leQuedan = (actual.getTiempoRestante() - (tiempoAEjecutar * 2));
-                if (leQuedan < 0){
-                    tiempoAEjecutar -= leQuedan;
-                    leQuedan = 0;
-                }
-                System.out.println("Tiempo [" + tiempo + "]\tSe ejecuta Proceso " + actual.getId() + " es repetido? " + actual.getEsRepetido()+ " (Uso " + tiempoUsadoProceso + " Unidades de Tiempo y le quedan: " + leQuedan + ", Unidades de tiempo que le tocaban "+ tiempoAEjecutar * 2 + " )");
-                actual.setTiempoRestante(actual.getTiempoRestante() - (tiempoAEjecutar * 2));
-                tiempoUsado.put(actual, tiempoUsado.get(actual) + tiempoAEjecutar);
-                tiempo += tiempoAEjecutar * 2;
-                cambiosProcesos++;
+            actual.setTiempoRestante(actual.getTiempoRestante() - tiempoAEjecutar);//al tiempo restante del proceso le resta el tiempo que se va a ejecutar
+            tiempoUsado.put(actual, tiempoUsado.get(actual) + tiempoAEjecutar);//acumula el tiempo que un proceso a tenido
+            tiempo += tiempoAEjecutar;//suma el tiempo ejecutado al tiempo total
+            cambiosProcesos++; 
 
-            } else{
-                int tiempoUsadoProceso = (tiempoAEjecutar);
-                int leQuedan = (actual.getTiempoRestante() - tiempoAEjecutar);
-                if (leQuedan < 0){
-                    tiempoAEjecutar -= leQuedan;
-                    leQuedan = 0;
-                }
-                System.out.println("Tiempo [" + tiempo + "]\tSe ejecuta Proceso " + actual.getId() + " es repetido? " + actual.getEsRepetido()+ " (Uso " + tiempoUsadoProceso + " Unidades de Tiempo y le quedan: " + leQuedan + ", Unidades de tiempo que le tocaban "+ tiempoAEjecutar + ")");
-                actual.setTiempoRestante(actual.getTiempoRestante() - tiempoAEjecutar);
-                tiempoUsado.put(actual, tiempoUsado.get(actual) + tiempoAEjecutar);
-                tiempo += tiempoAEjecutar;
-                cambiosProcesos++;
-            }
-
-
-
-            // verificar si un proceso ya termino
+            // verifica si el proceso actual ya termino
             if (actual.getTiempoRestante() <= 0) {
                 System.out.println("\tProceso " + actual.getId() + " ha terminado");
                 terminados.add(actual);
@@ -148,30 +108,24 @@ public class PlanificacionGarantizada {
 
     private static boolean estaBloqueado(procesos p) {
 
-        if (p.getEstado() == 1) {
-            return false;
+        if (p.getEstado() == 1) {//verifica si el proceso esta bloqueado
+            return false;//si no esta bloqueado devuelve false
         } else {
-
-            int intentoDesbloquear = (int) (Math.random() * 2);
-
-            if (intentoDesbloquear == 0) {
-
-                p.setIntentoDesbloquear(p.getIntentoDesbloquear() + 1);
-
+            int intentoDesbloquear = (int) (Math.random() * 2);// genera de manera random un 1 o 0
+           
+            if (intentoDesbloquear == 0) { //si sale 0 entonces se queda bloqueado
+                p.setIntentoDesbloquear(p.getIntentoDesbloquear() + 1); // suma 1 a los intentos de desbloqueo
                 System.out.println("El proceso " + p.getId() + " sigue bloqueado.");
                 System.out.println("Intentos fallidos: " + p.getIntentoDesbloquear());
 
-                if (p.getIntentoDesbloquear() >= 3) {
+                if (p.getIntentoDesbloquear() >= 3) { //si llega a 3 intentos de desbloqueo el proceso muere y se termina la ejecucion
                     System.out.println("Muerte del proceso " + p.getId() + " por inanición");
                     System.exit(0);
                 }
-
-                return true;
-
+                return true;//regresa true por que sigue bloqueado
             } else {
-
+                //en caso de que salga 1 entonces el proceso cambia de estado a desbloqueado
                 System.out.println("\tEl proceso " + p.getId() + " logró desbloquearse");
-
                 p.setEstado(1);
                 p.setIntentoDesbloquear(0);
                 return false;
