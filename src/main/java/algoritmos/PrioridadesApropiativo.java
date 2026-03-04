@@ -7,20 +7,32 @@ public class PrioridadesApropiativo {
     public void PrioridadesApropiativo() {
         Random rand = new Random();
         
-        // Datos con arreglos
+        // Generar procesos
         int numProcesos = rand.nextInt(5) + 3; // 3-7
         int[] id = new int[numProcesos];
         int[] tiempo = new int[numProcesos];
         int[] prioridad = new int[numProcesos];
         String[] estado = new String[numProcesos];
+        int[] bloqueos = new int[numProcesos];
+        int[] intentos = new int[numProcesos];
         
         System.out.println("\n=== GENERANDO " + numProcesos + " PROCESOS ===");
         for (int i = 0; i < numProcesos; i++) {
             id[i] = i + 1;
             tiempo[i] = rand.nextInt(8) + 3;
-            prioridad[i] = rand.nextInt(5) + 1; // 1-5 (1 más alta)
-            estado[i] = "Listo";
-            System.out.println("P" + id[i] + " | Tiempo: " + tiempo[i] + " | Prioridad: " + prioridad[i]);
+            prioridad[i] = rand.nextInt(5) + 1;
+            
+            // Algunos inician bloqueados
+            if (rand.nextInt(3) == 0) {
+                estado[i] = "Bloqueado";
+                System.out.println("P" + id[i] + " | Tiempo: " + tiempo[i] + " | Prioridad: " + prioridad[i] + " | INICIA BLOQUEADO");
+            } else {
+                estado[i] = "Listo";
+                System.out.println("P" + id[i] + " | Tiempo: " + tiempo[i] + " | Prioridad: " + prioridad[i]);
+            }
+            
+            bloqueos[i] = 0;
+            intentos[i] = 0;
         }
         
         int quantum = 2;
@@ -29,30 +41,80 @@ public class PrioridadesApropiativo {
         int tiempoActual = 0;
         int terminados = 0;
         
-        while (terminados < numProcesos) {
-            // Buscar proceso de mayor prioridad (menor número)
-            int indexEjecutar = -1;
+        while (terminados < numProcesos && tiempoActual < 100) {
+            
+            // Mostrar estado
+            System.out.println("\n--- Tiempo " + tiempoActual + " ---");
+            
+            // Buscar proceso de mayor prioridad
+            int actual = -1;
             for (int i = 0; i < numProcesos; i++) {
-                if (!estado[i].equals("Terminado")) {
-                    if (indexEjecutar == -1 || prioridad[i] < prioridad[indexEjecutar]) {
-                        indexEjecutar = i;
+                if (estado[i].equals("Listo")) {
+                    if (actual == -1 || prioridad[i] < prioridad[actual]) {
+                        actual = i;
                     }
                 }
             }
             
-            if (indexEjecutar == -1) break;
+            // Si no hay listos, manejar bloqueados
+            if (actual == -1) {
+                System.out.println("  No hay procesos listos");
+                
+                for (int i = 0; i < numProcesos; i++) {
+                    if (estado[i].equals("Bloqueado")) {
+                        int desbloquear = rand.nextInt(2);
+                        System.out.println("  Intentando desbloquear P" + id[i] + " (intento " + (intentos[i] + 1) + "/3): " + (desbloquear == 1 ? "exitoso" : "fallido"));
+                        
+                        if (desbloquear == 1) {
+                            System.out.println("    P" + id[i] + " se desbloquea");
+                            estado[i] = "Listo";
+                            intentos[i] = 0;
+                        } else {
+                            intentos[i]++;
+                            if (intentos[i] >= 3) {
+                                System.out.println("    P" + id[i] + " MUERE POR INANICION");
+                                estado[i] = "Muerto";
+                                terminados++;
+                            }
+                        }
+                    }
+                }
+                
+                tiempoActual++;
+                continue;
+            }
             
-            System.out.println("\n▶️ Ejecutando P" + id[indexEjecutar] + " (Prioridad " + prioridad[indexEjecutar] + ")");
-            tiempo[indexEjecutar] -= quantum;
+            // Ejecutar proceso
+            System.out.println("  Ejecutando P" + id[actual] + " (Prioridad " + prioridad[actual] + ")");
+            
+            // Posibilidad de bloqueo
+            if (rand.nextInt(10) < 3) {
+                System.out.println("    P" + id[actual] + " se BLOQUEA");
+                bloqueos[actual]++;
+                estado[actual] = "Bloqueado";
+                intentos[actual] = 0;
+                tiempoActual++;
+                continue;
+            }
+            
+            // Ejecucion normal
+            tiempo[actual] -= quantum;
             tiempoActual += quantum;
             
-            if (tiempo[indexEjecutar] <= 0) {
-                System.out.println("  ✅ P" + id[indexEjecutar] + " TERMINADO");
-                estado[indexEjecutar] = "Terminado";
+            if (tiempo[actual] <= 0) {
+                System.out.println("    P" + id[actual] + " TERMINA");
+                estado[actual] = "Terminado";
                 terminados++;
             } else {
-                System.out.println("  P" + id[indexEjecutar] + " restante: " + tiempo[indexEjecutar]);
+                System.out.println("    Queda: " + tiempo[actual]);
+                estado[actual] = "Listo";
             }
+        }
+        
+        // Reporte final
+        System.out.println("\n=== REPORTE FINAL ===");
+        for (int i = 0; i < numProcesos; i++) {
+            System.out.println("P" + id[i] + ": " + estado[i] + " | Bloqueos: " + bloqueos[i]);
         }
     }
     
