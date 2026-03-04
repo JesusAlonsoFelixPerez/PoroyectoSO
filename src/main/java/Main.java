@@ -39,7 +39,6 @@ public class Main {
                 System.out.println("===Prioridades===");
                 System.out.println("1- Apropiativo");
                 System.out.println("2- No Apropiativo");
-                sc.nextInt();
                 eleccion = sc.nextInt();
 
                 if(eleccion == 1){

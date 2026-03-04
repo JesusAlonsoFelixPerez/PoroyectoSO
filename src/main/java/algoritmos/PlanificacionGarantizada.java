@@ -12,6 +12,7 @@ public class PlanificacionGarantizada {
 
         ArrayList<procesos> procesos = new ArrayList<>();
 
+        //para el reporte al final de la ejecucion
         ArrayList<procesos> terminados = new ArrayList<>();
         ArrayList<procesos> nuncaEjecutados = new ArrayList<>();
         ArrayList<procesos> enEjecucion = new ArrayList<>();

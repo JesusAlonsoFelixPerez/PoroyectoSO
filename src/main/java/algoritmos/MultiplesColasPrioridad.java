@@ -6,13 +6,13 @@ import clases.*;
 public class MultiplesColasPrioridad {
     public static void MCP() {
         System.out.println("\t=====Algoritmo Multiples Colas de Prioridad=====");
-
+        //listas de prioridad
         ArrayList<procesos> Q1 = new ArrayList<>();
         ArrayList<procesos> Q2 = new ArrayList<>();
         ArrayList<procesos> Q3 = new ArrayList<>();
         ArrayList<procesos> Q4 = new ArrayList<>();
 
-        // Listas para el reporte final
+        // para el reporte al final de la ejecucion
         ArrayList<procesos> terminados = new ArrayList<>();
         ArrayList<procesos> nuncaEjecutados = new ArrayList<>();
         ArrayList<procesos> enEjecucion = new ArrayList<>();
@@ -59,39 +59,39 @@ public class MultiplesColasPrioridad {
 
             if (actual == null) break;
 
-            // Revisar si está bloqueado
+            // revisa si el proceso actual esta bloqueado
             if (estaBloqueado(actual)) {
                 devolverACola(actual, colaActual, Q1, Q2, Q3, Q4); // Regresa a su cola
                 continue;
             }
 
-            // Si llegamos aquí, se ejecutará el proceso
-            nuncaEjecutados.remove(actual); // Ya no pertenece a la lista de "nunca ejecutados"
+            // se ejecuta el proceso
+            nuncaEjecutados.remove(actual); //quita el proceso actual de nunca ejecutados
 
-            // Multiplicador: Prioridad por cantidad de veces usado
+            // multiplica la prioridad por la cantidad de veces que se uso el proceso actual
             int tiempoAsignado = quantumBase * actual.getVecesUsado();
             int tiempoAEjecutar = Math.min(tiempoAsignado, actual.getTiempoRestante());
 
-            // Evitamos pasarnos del tiempo límite de monitoreo
+            // para no pasarnos del tiempo limite del monitoreo
             if (tiempo + tiempoAEjecutar > tiempoMonitoreo) {
                 tiempoAEjecutar = tiempoMonitoreo - tiempo;
             }
 
             System.out.println("Tiempo [" + tiempo + "]\tSe ejecuta Proceso " + actual.getId() + " (Cola Q" + colaActual + ", A usado " + tiempoAEjecutar + " Unidades de Tiempo y le quedan: " + (actual.getTiempoRestante() - tiempoAEjecutar) + ")");
 
-            // Simulamos la ejecución
+            // Simula la ejecucion del proceso
             tiempo += tiempoAEjecutar;
             actual.setTiempoRestante(actual.getTiempoRestante() - tiempoAEjecutar);
             actual.setVecesUsado(actual.getVecesUsado() + 1);
             CambioProcesos++;
 
-            // Verificamos qué pasa con el proceso tras ejecutar
+            // verificamos si el termino el proceso, si no termina la baja de prioridad
             if (actual.getTiempoRestante() <= 0) {
                 System.out.println("\t El proceso " + actual.getId() + " ha Terminado");
                 enEjecucion.remove(actual);
                 terminados.add(actual);
             } else if (tiempo < tiempoMonitoreo) {
-                // Si no terminó, baja su prioridad pasándolo a una cola inferior (máximo Q4)
+                // si no termina baja el proceso de prioridad
                 devolverACola(actual, Math.min(colaActual + 1, 4), Q1, Q2, Q3, Q4);
             }
         }
@@ -122,15 +122,18 @@ public class MultiplesColasPrioridad {
         if (p.getEstado() == 1) {
             return false;
         } else {
-            //genera un numero random de 1 o 0
+            //genera un numero random de 1 a 0
             int intentoDesbloquear = (int) (Math.random() * 2);
 
-            if (intentoDesbloquear == 0) {
-                //fallo al debloquear
-                p.setIntentoDesbloquear(p.getIntentoDesbloquear() + 1);
-                System.out.println("El proceso " + p.getId() + " Sigue bloqueado.");
-                System.out.println("Intentos fallidos: " + p.getIntentoDesbloquear());
+            if (intentoDesbloquear == 0) {//si fallo al desbloquear
+                p.setIntentoDesbloquear(p.getIntentoDesbloquear() + 1);//se le suma 1 a intentos debloquear
+                System.out.println("\tEl proceso " + p.getId() + " Sigue bloqueado.");
+                System.out.println("\t\tIntentos fallidos: " + p.getIntentoDesbloquear());
 
+                /*
+                si el proceso lleva 3 intentos sin lograr desbloquearse entonces
+                el proceso se muere, por lo que se acaba la simulacion
+                 */
                 if (p.getIntentoDesbloquear() >= 3) {
                     System.out.println("Muerte del proceso " + p.getId() + " Por inanicion");
                     System.exit(0);
@@ -138,7 +141,7 @@ public class MultiplesColasPrioridad {
                 return true;
             } else {
                 //logro desbloquearse
-                System.out.println("El proceso " + p.getId() + " logro desbloquearse");
+                System.out.println("\tEl proceso " + p.getId() + " logro desbloquearse");
                 p.setEstado(1);
                 p.setIntentoDesbloquear(0);
                 return false;
