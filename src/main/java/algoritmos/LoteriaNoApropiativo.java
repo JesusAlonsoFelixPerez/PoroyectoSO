@@ -75,8 +75,8 @@ package algoritmos;
 	            // Ejecucion completa no apropiativo
 	            System.out.println("   Ejecutando proceso completo...");
 	            
-	            // Simular ejecución completa
-	            actual.tiempoRestante = 0;  // Termina en este ciclo
+	            // Simular ejecución completa y terminar el ciclo
+	            actual.tiempoRestante = 0; 
 	            
 	            System.out.println("Proceso terminado después de " + actual.tiempoRafaga + " unidades");
 	            
