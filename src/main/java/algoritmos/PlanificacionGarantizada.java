@@ -18,8 +18,10 @@ public class PlanificacionGarantizada {
 
         int tiempo = 0;
         int tiempoMonitoreo = (int) (Math.random() * 10) + 26; // 26–35
-        int numProcesos = (int) (Math.random() * 10) + 1;
-        int quantum = (int) (Math.random() * 4) + 2; // 2–5
+        //int numProcesos = (int) (Math.random() * 10) + 1;
+        int numProcesos = 3;
+        //int quantum = (int) (Math.random() * 4) + 2; // 2–5
+        int quantum = 2;
         int cambiosProcesos = 0;
 
         System.out.println("Tiempo Monitoreo: " + tiempoMonitoreo + " | Procesos: " + numProcesos + " | Quantum: " + quantum);
@@ -34,6 +36,19 @@ public class PlanificacionGarantizada {
             enEjecucion.add(p);
             System.out.println(p.toString());
         }
+        //verifica si el tiempo del proceso esta repetido
+        System.out.println("================================================================");
+        for (int i = 0; i < numProcesos; i++) {
+            for (int j = 0; j <numProcesos ; j++) {
+                if(procesos.get(i).getTiempoRestante() == procesos.get(j).getTiempoRestante() && procesos.get(i).getId() != procesos.get(j).getId()) {
+                    System.out.println(procesos.get(i).toString());
+                    System.out.println(procesos.get(j).toString());
+                    System.out.println(procesos.get(i).getTiempoRestante() == procesos.get(j).getTiempoRestante());
+                    procesos.get(i).setEsRepetido(true);
+                }
+            }
+        }
+        System.out.println("================================================================");
 
         System.out.println("--------------------------------------------------\n");
         // llevar el control de uso de la cpu
@@ -48,11 +63,9 @@ public class PlanificacionGarantizada {
             procesos actual = null;
             double menorProporcion = Double.MAX_VALUE;
 
-            // buscar el más atrasado proporcionalmente
+            // busca el más atrasado proporcionalmente
             for (procesos p : procesos) {
-
                 if (p.getTiempoRestante() > 0) {
-
                     double proporcion;
 
                     if (tiempo == 0) {
@@ -86,13 +99,40 @@ public class PlanificacionGarantizada {
                 tiempoAEjecutar = tiempoMonitoreo - tiempo;
             }
 
-            System.out.println("Tiempo [" + tiempo + "]\tSe ejecuta Proceso " + actual.getId() +", uso " + tiempoAEjecutar + " Unidades de Tiempo y le quedan: " + (actual.getTiempoRestante() - tiempoAEjecutar) + ")");
+            if(actual.getTiempoRestante() < 0){
+                actual.setTiempoRestante(0);
+            }
+
 
             // simula la ejecución
-            actual.setTiempoRestante(actual.getTiempoRestante() - tiempoAEjecutar);
-            tiempoUsado.put(actual, tiempoUsado.get(actual) + tiempoAEjecutar);
-            tiempo += tiempoAEjecutar;
-            cambiosProcesos++;
+            if (actual.getEsRepetido() == true){
+                int tiempoUsadoProceso = (tiempoAEjecutar * 2);
+                int leQuedan = (actual.getTiempoRestante() - (tiempoAEjecutar * 2));
+                if (leQuedan < 0){
+                    tiempoAEjecutar -= leQuedan;
+                    leQuedan = 0;
+                }
+                System.out.println("Tiempo [" + tiempo + "]\tSe ejecuta Proceso " + actual.getId() + " es repetido? " + actual.getEsRepetido()+ " (Uso " + tiempoUsadoProceso + " Unidades de Tiempo y le quedan: " + leQuedan + ", Unidades de tiempo que le tocaban "+ tiempoAEjecutar * 2 + " )");
+                actual.setTiempoRestante(actual.getTiempoRestante() - (tiempoAEjecutar * 2));
+                tiempoUsado.put(actual, tiempoUsado.get(actual) + tiempoAEjecutar);
+                tiempo += tiempoAEjecutar * 2;
+                cambiosProcesos++;
+
+            } else{
+                int tiempoUsadoProceso = (tiempoAEjecutar);
+                int leQuedan = (actual.getTiempoRestante() - tiempoAEjecutar);
+                if (leQuedan < 0){
+                    tiempoAEjecutar -= leQuedan;
+                    leQuedan = 0;
+                }
+                System.out.println("Tiempo [" + tiempo + "]\tSe ejecuta Proceso " + actual.getId() + " es repetido? " + actual.getEsRepetido()+ " (Uso " + tiempoUsadoProceso + " Unidades de Tiempo y le quedan: " + leQuedan + ", Unidades de tiempo que le tocaban "+ tiempoAEjecutar + ")");
+                actual.setTiempoRestante(actual.getTiempoRestante() - tiempoAEjecutar);
+                tiempoUsado.put(actual, tiempoUsado.get(actual) + tiempoAEjecutar);
+                tiempo += tiempoAEjecutar;
+                cambiosProcesos++;
+            }
+
+
 
             // verificar si un proceso ya termino
             if (actual.getTiempoRestante() <= 0) {
@@ -129,7 +169,7 @@ public class PlanificacionGarantizada {
 
             } else {
 
-                System.out.println("El proceso " + p.getId() + " logró desbloquearse");
+                System.out.println("\tEl proceso " + p.getId() + " logró desbloquearse");
 
                 p.setEstado(1);
                 p.setIntentoDesbloquear(0);

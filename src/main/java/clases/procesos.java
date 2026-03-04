@@ -6,6 +6,7 @@ public class procesos {
     private int estado;
     private int VecesUsado;
     private int intentoDesbloquear;
+    private boolean esRepetido;
 
     public procesos(char id) {
         this.id = id;
@@ -13,13 +14,11 @@ public class procesos {
         this.estado = (int)(Math.random() * 2);
         this.VecesUsado = 1;
         this.intentoDesbloquear = 0;
+        this.esRepetido = false;
     }
 
     public char getId() {
         return id;
-    }
-    public void setId(char id) {
-        this.id = id;
     }
 
     public int getTiempoRestante() {
@@ -53,6 +52,10 @@ public class procesos {
     public void setEstado(int estado) {
         this.estado = estado;
     }
+
+    public boolean getEsRepetido() {return esRepetido;}
+
+    public void setEsRepetido(boolean esRepetido) {this.esRepetido = esRepetido;}
 
     @Override
     public String toString() {

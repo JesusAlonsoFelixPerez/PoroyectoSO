@@ -87,7 +87,7 @@ public class Main {
                 System.out.println("Eleccion no valido");
                 System.out.println("Adios");
                 break;
-            
+
         }
     }
 }
