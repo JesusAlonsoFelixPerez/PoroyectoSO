@@ -30,7 +30,7 @@ public class Main {
                 if(eleccion == 1){
                     RoundRobinAprop.ejecutar();
                 } else{
-                    RoundRobinNoApropiativo.ejecutar();
+                    RoundRobinNoAprop.ejecutar();
                 }
                 break;
 

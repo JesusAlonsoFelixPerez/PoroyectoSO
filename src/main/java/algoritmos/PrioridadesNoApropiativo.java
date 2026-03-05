@@ -49,7 +49,7 @@ public class PrioridadesNoApropiativo {
             int actual = -1;
             for (int i = 0; i < numProcesos; i++) {
                 if (estado[i].equals("Listo")) {
-                    if (actual == -1 || prioridad[i] < prioridad[actual]) {
+                    if (actual == -1 || prioridad[i] < prioridad[actual]) { //decide el que tiene mayor prioridad  por el < 
                         actual = i;
                     }
                 }
