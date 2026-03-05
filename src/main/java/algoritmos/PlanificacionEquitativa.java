@@ -1,32 +1,35 @@
 package algoritmos;
-
 import java.util.Random;
 
-public class ParticipacionEquitativa {
+public class PlanificacionEquitativa {
 
     public static void ejecutar() {
 
         Random r = new Random();
 
-        System.out.println("===== PARTICIPACION EQUITATIVA =====");
+        System.out.println("===== PLANIFICACION EQUITATIVA =====");
 
-        int n = r.nextInt(10) + 1; 
-        int tiempoMonitoreo = r.nextInt(16) + 20; 
-        int quantum = r.nextInt(4) + 2; 
+        int n = r.nextInt(10) + 1;
+        int tiempoMonitoreo = r.nextInt(16) + 20;
+        int quantum = r.nextInt(4) + 2;
 
         System.out.println("Procesos: " + n);
         System.out.println("Tiempo monitoreo: " + tiempoMonitoreo);
         System.out.println("Quantum: " + quantum);
 
+        int cuota = tiempoMonitoreo / n;
+
         int[] tiempo = new int[n];
+        int[] usado = new int[n];
         String[] estado = new String[n];
         boolean[] ejecuto = new boolean[n];
         int[] intentos = new int[n];
 
         for (int i = 0; i < n; i++) {
 
-            tiempo[i] = r.nextInt(8) + 3; 
+            tiempo[i] = r.nextInt(8) + 3;
             estado[i] = (r.nextInt(2) == 0) ? "Listo" : "Bloqueado";
+            usado[i] = 0;
             ejecuto[i] = false;
             intentos[i] = 0;
 
@@ -43,12 +46,17 @@ public class ParticipacionEquitativa {
             boolean todosTerminados = true;
 
             for (int i = 0; i < n; i++) {
+
                 if (tiempoActual >= tiempoMonitoreo)
                     break;
+
                 if (estado[i].equals("Terminado"))
                     continue;
+
                 todosTerminados = false;
 
+                if (usado[i] >= cuota)
+                    continue;
 
                 if (estado[i].equals("Bloqueado")) {
 
@@ -62,6 +70,7 @@ public class ParticipacionEquitativa {
                         intentos[i]++;
                         System.out.println("Intento fallido de desbloqueo P" + (i + 1));
                     }
+
                     if (intentos[i] == 3) {
                         System.out.println("Muerte del proceso P" + (i + 1) + " por inanicion");
                         reporteFinal(n, estado, ejecuto, cambios);
@@ -72,21 +81,32 @@ public class ParticipacionEquitativa {
 
                 System.out.println("\nP" + (i + 1) + " entra a ejecucion");
 
+                int restanteCuota = cuota - usado[i];
                 int ejecutar = Math.min(quantum, tiempo[i]);
+                ejecutar = Math.min(ejecutar, restanteCuota);
+
                 tiempo[i] -= ejecutar;
+                usado[i] += ejecutar;
                 tiempoActual += ejecutar;
+
                 if (tiempo[i] <= 0)
                     estado[i] = "Terminado";
+
                 ejecuto[i] = true;
                 cambios++;
+
                 mostrarPCB(n, tiempo, estado);
             }
+
             if (todosTerminados)
                 break;
         }
+
         reporteFinal(n, estado, ejecuto, cambios);
     }
+
     static void mostrarPCB(int n, int[] tiempo, String[] estado) {
+
         System.out.println("\nPCB:");
         for (int i = 0; i < n; i++)
             System.out.println("P" + (i + 1) +
