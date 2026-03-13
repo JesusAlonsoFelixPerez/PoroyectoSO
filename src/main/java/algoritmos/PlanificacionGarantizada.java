@@ -19,15 +19,13 @@ public class PlanificacionGarantizada {
 
         int tiempo = 0;
         int tiempoMonitoreo = (int) (Math.random() * 10) + 26; // 26–35
-        //int numProcesos = (int) (Math.random() * 10) + 1;
-        int numProcesos = 3;
-        //int quantum = (int) (Math.random() * 4) + 2; // 2–5
-        int quantum = 2;
+        int numProcesos = (int) (Math.random() * 10) + 1;
+        int quantum = tiempoMonitoreo / numProcesos;
         int cambiosProcesos = 0;
 
         System.out.println("Tiempo Monitoreo: " + tiempoMonitoreo + " | Procesos: " + numProcesos + " | Quantum: " + quantum);
 
-        System.out.println("--------------------------------------------------");
+        System.out.println("--------------------------------------------------------------------");
         System.out.println("Proceso | T.Restante | Estado | V.Usado | Int.Desbloeo");
 
         // Crear procesos
@@ -38,6 +36,8 @@ public class PlanificacionGarantizada {
             enEjecucion.add(p);
             System.out.println(p.toString());
         }
+        System.out.println("--------------------------------------------------------------------");
+
         // llevar el control de uso de la cpu
         HashMap<procesos, Integer> tiempoUsado = new HashMap<>();
         for (procesos p : procesos) {//un bucle que recorre todos los procesos y a todos le agrega un valor inicial de 0
@@ -49,23 +49,12 @@ public class PlanificacionGarantizada {
             // cuando los procesos no se encuentren vacios
 
             procesos actual = null;
-            double menorProporcion = Double.MAX_VALUE;
 
-            // busca el más atrasado proporcionalmente
+
             for (procesos p : procesos) { //recorre todos lo proceso
                 if (p.getTiempoRestante() > 0) { //verifica si aun tiene tiempo restante
-                    double proporcion;
-
-                    if (tiempo == 0) {
-                        proporcion = 0;
-                    } else {
-                        proporcion = (double) tiempoUsado.get(p) / tiempo;
-                    }
-
-                    if (proporcion < menorProporcion) {//compara el proceso con el de mayor proporcion y si es menor entra en el for
-                        menorProporcion = proporcion; //el proceso pasa a hacer el de meor porporcion
-                        actual = p;//selecciona el proceso de menor proporcion para ejecutarlo
-                    }
+                    actual = p;
+                    break;
                 }
             }
 
@@ -79,21 +68,24 @@ public class PlanificacionGarantizada {
             // quita el proceso actualde nunca ejecutados
             nuncaEjecutados.remove(actual);
 
-            // el tiempo que ejecutara el proceso
-            int tiempoAEjecutar = Math.min(quantum, actual.getTiempoRestante());
+            /// el tiempo que ejecutara el proceso
+            int tiempoAEjecutar = quantum;
+            System.out.println("el tiempo a jecutar cada proceso es de " + tiempoAEjecutar);
 
             // evitar pasar límite de monitoreo
             if (tiempo + tiempoAEjecutar > tiempoMonitoreo) {
                 tiempoAEjecutar = tiempoMonitoreo - tiempo;
             }
+            //evitar pasar del tiempo que le queda para no dar negativos
+            tiempoAEjecutar = Math.min(tiempoAEjecutar, actual.getTiempoRestante());
 
-            System.out.println("Tiempo [" + tiempo + "]\tSe ejecuta Proceso " + actual.getId() + " (Uso " + tiempoAEjecutar + " Unidades de Tiempo y le quedan: " + (actual.getTiempoRestante() - tiempoAEjecutar) + ", Unidades de tiempo que le tocaban "+ tiempoAEjecutar * 2 + " )");
+            System.out.println("Tiempo [" + tiempo + "]\tSe ejecuta Proceso " + actual.getId() + " (Uso " + tiempoAEjecutar + " Unidades de Tiempo y le quedan: " + (actual.getTiempoRestante() - tiempoAEjecutar) + ", Unidades de tiempo que le tocaban "+ tiempoAEjecutar + " )");
             
             // simula la ejecución
             actual.setTiempoRestante(actual.getTiempoRestante() - tiempoAEjecutar);//al tiempo restante del proceso le resta el tiempo que se va a ejecutar
             tiempoUsado.put(actual, tiempoUsado.get(actual) + tiempoAEjecutar);//acumula el tiempo que un proceso a tenido
             tiempo += tiempoAEjecutar;//suma el tiempo ejecutado al tiempo total
-            cambiosProcesos++; 
+            cambiosProcesos++;
 
             // verifica si el proceso actual ya termino
             if (actual.getTiempoRestante() <= 0) {

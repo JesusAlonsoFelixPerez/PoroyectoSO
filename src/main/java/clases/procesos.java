@@ -59,7 +59,7 @@ public class procesos {
 
     @Override
     public String toString() {
-        return String.format("%-7s | %-10d | %-6s | %-5d | %-7d",
+        return String.format("%-7s | %-10d | %-6s | %-7d | %-13d",
                 id,
                 tiempoRestante,
                 estado,

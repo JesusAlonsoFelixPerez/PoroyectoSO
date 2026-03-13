@@ -6,7 +6,7 @@ import clases.*;
 public class MultiplesColasPrioridad {
     public static void MCP() {
         System.out.println("\t=====Algoritmo Multiples Colas de Prioridad=====");
-        //listas de prioridad
+        //colas de prioridad
         ArrayList<procesos> Q1 = new ArrayList<>();
         ArrayList<procesos> Q2 = new ArrayList<>();
         ArrayList<procesos> Q3 = new ArrayList<>();
@@ -17,32 +17,44 @@ public class MultiplesColasPrioridad {
         ArrayList<procesos> nuncaEjecutados = new ArrayList<>();
         ArrayList<procesos> enEjecucion = new ArrayList<>();
 
+
         int tiempo = 0;
         int tiempoMonitoreo = (int) (Math.random() * 10) + 26;// genera un tiempo de monitoreo entre 25 a 35
         int numProcesosRandom = (int) (Math.random() * 10) + 1;//Generar un numero de procesos randoms entre 1 a 10 para usar en el for
-        int quantumBase = (int) (Math.random() * 4) + 2;
+        //int quantumBase = (int) (Math.random() * 4) + 2;
+        int quantumBase = 2;
         int CambioProcesos = 0;
 
         System.out.println("Tiempo Monitoreo: " + tiempoMonitoreo + " | Procesos Creados: " + numProcesosRandom + " | Quantum Base: " + quantumBase);
         System.out.println("--------------------------------------------------");
-        System.out.println("Proceso | T.Restante | Estado | V.Usado | Int.Desbloeo");
+        System.out.println("Proceso | T.Restante | Estado | V.Usado | Int.Desbloeo | Prioridad");
 
         // Creando los procesos
         for (int i = 0; i < numProcesosRandom; i++) {
             procesos p = new procesos((char) (i + 65));
-            Q1.add(p);
+            int prioridad = (int) (Math.random() * 4)+1;
+            if (prioridad == 1){
+                Q1.add(p);
+            } else  if (prioridad == 2){
+                Q2.add(p);
+            }  else  if (prioridad == 3){
+                Q3.add(p);
+            }  else  if (prioridad == 4){
+                Q4.add(p);
+            }
             nuncaEjecutados.add(p);
             enEjecucion.add(p);
-            System.out.println(p.toString());
+            System.out.print(p.toString());
+            System.out.print("| " + prioridad);
+            System.out.print("\n");
         }
         System.out.println("--------------------------------------------------\n");
 
         while (tiempo < tiempoMonitoreo && (!Q1.isEmpty() || !Q2.isEmpty() || !Q3.isEmpty() || !Q4.isEmpty())) {
             procesos actual = null;
             int colaActual = 0;
-            boolean todosRevisadosQ1 = false;
 
-            // Extraer proceso de la cola de mayor prioridad disponible
+
             if (!Q1.isEmpty()) {
                 actual = Q1.remove(0);
                 colaActual = 1;
@@ -77,7 +89,7 @@ public class MultiplesColasPrioridad {
                 tiempoAEjecutar = tiempoMonitoreo - tiempo;
             }
 
-            System.out.println("Tiempo [" + tiempo + "]\tSe ejecuta Proceso " + actual.getId() + " (Cola Q" + colaActual + ", A usado " + tiempoAEjecutar + " Unidades de Tiempo y le quedan: " + (actual.getTiempoRestante() - tiempoAEjecutar) + ")");
+            System.out.println("Tiempo [" + tiempo + "]\tSe ejecuta Proceso " + actual.getId() + " es de prioridad "  + colaActual+" (Cola Q" + colaActual + ", A usado " + tiempoAEjecutar + " Unidades de Tiempo y le quedan: " + (actual.getTiempoRestante() - tiempoAEjecutar) + ")");
 
             // Simula la ejecucion del proceso
             tiempo += tiempoAEjecutar;
