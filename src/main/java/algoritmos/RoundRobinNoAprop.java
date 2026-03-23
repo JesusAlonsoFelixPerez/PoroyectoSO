@@ -1,179 +1,196 @@
 package algoritmos;
 
-import java.util.Random;
+import java.util.*;
 
 public class RoundRobinNoAprop {
 
-    public static void ejecutar() {
+    static Random r = new Random();
 
-        // Random para generar valores aleatorios
-        Random r = new Random();
+    static class Peticion {
+        int sector;
+        char tipo;
 
-        System.out.println("===== ROUND ROBIN NO APROPIATIVO =====");
-
-        // Número de procesos aleatorios entre 1 y 10
-        int n = r.nextInt(10) + 1;
-//arreglos
-        System.out.println("Procesos: " + n);
-        int[] tiempo = new int[n];
-        String[] estado = new String[n];
-        boolean[] ejecuto = new boolean[n];
-        int[] intentos = new int[n];
-
-        // creacion de procesos 
-        for (int i = 0; i < n; i++) {
-
-            // Tiempo aleatorio 
-            tiempo[i] = r.nextInt(8) + 3;
-
-            // Estado inicial aleatorio: Listo o Bloqueado
-            estado[i] = (r.nextInt(2) == 0) ? "Listo" : "Bloqueado";
-
-            ejecuto[i] = false;
-            intentos[i] = 0;
-
-            // Mostrar información del proceso
-            System.out.println("P" + (i + 1) +
-                    " | Tiempo: " + tiempo[i] +
-                    " | Estado: " + estado[i]);
+        Peticion(int sector, char tipo) {
+            this.sector = sector;
+            this.tipo = tipo;
         }
 
-        int cambios = 0;
-        int indice = 0;
+        public String toString() {
+            return sector + "" + tipo;
+        }
+    }
 
-        // -------- --------
-        // El ciclo continúa hasta que todos los procesos terminen
-        while (true) {
+    static class Disco {
+        int cabeza = 0;
+        List<Peticion> colaActual = new ArrayList<>();
+        List<Peticion> colaNueva = new ArrayList<>();
+        int totalPeticiones = 0;
+        int tiempoTotal = 0;
+        List<String> atendidas = new ArrayList<>();
+    }
 
-            boolean todosTerminados = true;
+    public static void ejecutar() {
 
-            // Verificar si todavía hay procesos activos
-            for (int i = 0; i < n; i++) {
-                if (!estado[i].equals("Terminado")) {
-                    todosTerminados = false;
-                    break;
+        System.out.println("===== ROUND ROBIN NO APROPIATIVO + N-SCAN =====");
+
+        int n = r.nextInt(5) + 3;
+
+        int[] tiempo = new int[n];
+        String[] estado = new String[n];
+        Disco[] discos = new Disco[n];
+
+        for (int i = 0; i < n; i++) {
+
+            tiempo[i] = r.nextInt(8) + 3;
+            estado[i] = (r.nextInt(2) == 0) ? "Listo" : "Bloqueado";
+
+            discos[i] = new Disco();
+
+            if (estado[i].equals("Bloqueado")) {
+                int num = r.nextInt(5) + 1;
+                for (int j = 0; j < num; j++) {
+                    agregarPeticion(discos[i]);
                 }
             }
 
-            // Si todos terminaron, salir del ciclo
-            if (todosTerminados) break;
+            System.out.println("P" + (i + 1) +
+                    " | Tiempo: " + tiempo[i] +
+                    " | Estado: " + estado[i] +
+                    " | Peticiones: " + discos[i].colaActual);
+        }
 
-            // Si el proceso actual ya terminó, pasar al siguiente
+        int indice = 0;
+
+        while (true) {
+
+            boolean fin = true;
+            for (int i = 0; i < n; i++) {
+                if (!estado[i].equals("Terminado")) {
+                    fin = false;
+                    break;
+                }
+            }
+            if (fin) break;
+
             if (estado[indice].equals("Terminado")) {
                 indice = (indice + 1) % n;
                 continue;
             }
 
-            // corrreccion
+            // 🔥 SI ESTÁ BLOQUEADO → SE QUEDA AQUÍ HASTA DESBLOQUEARSE
             if (estado[indice].equals("Bloqueado")) {
 
-                System.out.println("\nP" + (indice + 1) + " está BLOQUEADO");
+                System.out.println("\nP" + (indice + 1) + " en SES-HHDD...");
 
-                // Se genera aleatoriamente si se desbloquea o no
-                int desbloqueo = r.nextInt(2);
+                while (true) {
 
-                if (desbloqueo == 1) {
+                    boolean vacio = atenderUnaPeticion(discos[indice]);
 
-                    // El proceso logra desbloquearse
-                    estado[indice] = "Listo";
-
-                    // Reiniciar contador de intentos
-                    intentos[indice] = 0;
-
-                    System.out.println("Proceso P" + (indice + 1) + " se desbloqueó");
-                } else {
-                    // Falló el intento de desbloqueo
-                    intentos[indice]++;
-                      System.out.println("Intento de desbloqueo #" +
-                            intentos[indice] + " fallido para P" + (indice + 1));
-
-                    // aqui hice el cambio para cuando termine o muera por inanicion se brinque al siguiente
-                    if (intentos[indice] == 3) {
-
-                        System.out.println("P" + (indice + 1) +
-                                " murió por inanición");
-
-                        estado[indice] = "Terminado";
-                        // Pasar al siguiente proceso
-                        indice = (indice + 1) % n;
-                  
+                    if (vacio) {
+                        estado[indice] = "Listo";
+                        System.out.println("P" + (indice + 1) + " desbloqueado");
+                        break;
                     }
-                }  // Volver al inicio del ciclo sin cambiar proceso
-                continue;
+                }
             }
 
-            // -------- EJECUCIÓN DEL PROCESO --------
+            // 🔥 EJECUTA COMPLETO (NO BRINCA)
             if (estado[indice].equals("Listo")) {
 
-                System.out.println("\nP" + (indice + 1) + " ejecutando...");
+                System.out.println("\nP" + (indice + 1) + " ejecutando COMPLETO...");
 
-                // Marcar que el proceso sí ejecutó al menos una vez
-                ejecuto[indice] = true;
-
-                // Aumentar contador de cambios de proceso
-                cambios++;
-
-                int tiempoEjecucion = tiempo[indice];
-
-                // Como es no apropiativo, ejecuta todo su tiempo
+                int tiempoEjec = tiempo[indice];
                 tiempo[indice] = 0;
-
-                // El proceso termina
                 estado[indice] = "Terminado";
 
                 System.out.println("P" + (indice + 1) +
-                        " finalizó, ejecutó " + tiempoEjecucion + " unidades");
+                        " terminó (CPU: " + tiempoEjec + ")");
 
-                // Mostrar estado actual de los procesos
-                mostrar(n, tiempo, estado);
-
-                // Pasar al siguiente proceso
-                indice = (indice + 1) % n;
+                // 📊 REPORTE DEL DISCO
+                System.out.println("Peticiones atendidas: " + discos[indice].atendidas);
+                System.out.println("Tiempo total en disco: " + discos[indice].tiempoTotal);
             }
+
+            indice = (indice + 1) % n;
         }
-        reporteFinal(n, estado, ejecuto, cambios);
+
+        System.out.println("\n===== FIN =====");
     }
 
-    //  PCB 
-    static void mostrar(int n, int[] tiempo, String[] estado) {
+    // 🔧 Atiende UNA petición
+    static boolean atenderUnaPeticion(Disco d) {
 
-        System.out.println("\nPCB:");
-
-        for (int i = 0; i < n; i++) {
-
-            System.out.println("P" + (i + 1) +
-                    " | Restante: " + tiempo[i] +
-                    " | Estado: " + estado[i]);
+        if (d.colaActual.isEmpty()) {
+            d.colaActual.addAll(d.colaNueva);
+            d.colaNueva.clear();
         }
+
+        if (d.colaActual.isEmpty()) return true;
+
+        d.colaActual.sort(Comparator.comparingInt(p -> p.sector));
+
+        Peticion p = d.colaActual.remove(0);
+
+        int distancia = Math.abs(d.cabeza - p.sector);
+        int rotacional = distancia;
+        int transferencia = (p.tipo == 'L') ? 1 : 2;
+        int total = rotacional + transferencia;
+
+        d.tiempoTotal += total;
+
+        String registro = p + "(t=" + total + ")";
+        d.atendidas.add(registro);
+
+        System.out.println("Atendiendo: " + p +
+                " | Cabeza: " + d.cabeza +
+                " -> " + p.sector +
+                " | Tiempo: " + total);
+
+        d.cabeza = p.sector;
+
+        // nuevas peticiones
+        if (r.nextBoolean()) {
+
+            int nuevas = r.nextInt(3) + 1;
+
+            for (int i = 0; i < nuevas; i++) {
+                if (d.totalPeticiones < 10) {
+                    Peticion nueva = generarUnica(d);
+                    d.colaNueva.add(nueva);
+                    d.totalPeticiones++;
+                }
+            }
+
+            System.out.println("Nuevas: " + d.colaNueva);
+        }
+
+        return false;
     }
 
-    // -------- REPORTE FINAL --------
-    static void reporteFinal(int n, String[] estado, boolean[] ejecuto, int cambios) {
+    static void agregarPeticion(Disco d) {
+        Peticion p = new Peticion(r.nextInt(20) + 1,
+                r.nextBoolean() ? 'L' : 'E');
 
-        int finalizados = 0;
-        int nunca = 0;
-        int activos = 0;
+        d.colaActual.add(p);
+        d.totalPeticiones++;
+    }
 
-        System.out.println("\n===== REPORTE FINAL =====");
+    static Peticion generarUnica(Disco d) {
 
-        for (int i = 0; i < n; i++) {
+        while (true) {
+            int sector = r.nextInt(20) + 1;
+            char tipo = r.nextBoolean() ? 'L' : 'E';
 
-            // Contar procesos terminados
-            if (estado[i].equals("Terminado"))
-                finalizados++;
+            boolean existe = false;
 
-            // Procesos que nunca entraron al CPU
-            if (!ejecuto[i])
-                nunca++;
+            for (Peticion p : d.colaActual)
+                if (p.sector == sector) existe = true;
 
-            // Procesos que quedaron activos
-            if (!estado[i].equals("Terminado"))
-                activos++;
+            for (Peticion p : d.colaNueva)
+                if (p.sector == sector) existe = true;
+
+            if (!existe)
+                return new Peticion(sector, tipo);
         }
-
-        System.out.println("Procesos finalizados: " + finalizados);
-        System.out.println("Procesos que nunca entraron: " + nunca);
-        System.out.println("Procesos aun activos: " + activos);
-        System.out.println("Cambios de proceso: " + cambios);
     }
 }
