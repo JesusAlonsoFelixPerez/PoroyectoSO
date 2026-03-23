@@ -25,6 +25,8 @@ public class PlanificacionEquitativa {
         boolean[] ejecuto = new boolean[n];
         int[] intentos = new int[n];
 
+        DiscoSCAN.inicializar(n);
+
         for (int i = 0; i < n; i++) {
 
             tiempo[i] = r.nextInt(8) + 3;
@@ -32,6 +34,10 @@ public class PlanificacionEquitativa {
             usado[i] = 0;
             ejecuto[i] = false;
             intentos[i] = 0;
+            
+            if (estado[i].equals("Bloqueado")) {
+                DiscoSCAN.agregarPeticiones(i);
+            }
 
             System.out.println("P" + (i + 1) +
                     " | Tiempo: " + tiempo[i] +
@@ -44,6 +50,27 @@ public class PlanificacionEquitativa {
         while (tiempoActual < tiempoMonitoreo) {
 
             boolean todosTerminados = true;
+            
+            boolean hayBloqueados = false;
+            for (int i = 0; i < n; i++) {
+                if (estado[i].equals("Bloqueado")) {
+                    hayBloqueados = true;
+                    break;
+                }
+            }
+            
+            if (hayBloqueados) {
+                System.out.println("\n[SCAN] Atendiendo peticiones de disco");
+                DiscoSCAN.ejecutarSCAN();
+                
+                for (int i = 0; i < n; i++) {
+                    if (estado[i].equals("Bloqueado") && !DiscoSCAN.tienePeticiones(i)) {
+                        estado[i] = "Listo";
+                        intentos[i] = 0;
+                        System.out.println("P" + (i+1) + " desbloqueado");
+                    }
+                }
+            }
 
             for (int i = 0; i < n; i++) {
 
@@ -52,32 +79,13 @@ public class PlanificacionEquitativa {
 
                 if (estado[i].equals("Terminado"))
                     continue;
+                if (estado[i].equals("Bloqueado"))
+                    continue;
 
                 todosTerminados = false;
 
                 if (usado[i] >= cuota)
                     continue;
-
-                if (estado[i].equals("Bloqueado")) {
-
-                    int desbloqueo = r.nextInt(2);
-
-                    if (desbloqueo == 1) {
-                        estado[i] = "Listo";
-                        intentos[i] = 0;
-                        System.out.println("P" + (i + 1) + " se desbloqueo");
-                    } else {
-                        intentos[i]++;
-                        System.out.println("Intento fallido de desbloqueo P" + (i + 1));
-                    }
-
-                    if (intentos[i] == 3) {
-                        System.out.println("Muerte del proceso P" + (i + 1) + " por inanicion");
-                        reporteFinal(n, estado, ejecuto, cambios);
-                        return;
-                    }
-                    continue;
-                }
 
                 System.out.println("\nP" + (i + 1) + " entra a ejecucion");
 
@@ -102,16 +110,29 @@ public class PlanificacionEquitativa {
                 break;
         }
 
+        DiscoSCAN.mostrarEstadisticas();
         reporteFinal(n, estado, ejecuto, cambios);
     }
 
     static void mostrarPCB(int n, int[] tiempo, String[] estado) {
 
         System.out.println("\nPCB:");
-        for (int i = 0; i < n; i++)
-            System.out.println("P" + (i + 1) +
+        for (int i = 0; i < n; i++) {
+            System.out.print("P" + (i + 1) +
                     " | Restante: " + tiempo[i] +
                     " | Estado: " + estado[i]);
+            
+            System.out.print(" | Disco: ");
+            if (DiscoSCAN.peticiones[i].isEmpty()) {
+                System.out.print("ninguna");
+            } else {
+                for (int j = 0; j < DiscoSCAN.peticiones[i].size(); j++) {
+                    System.out.print(DiscoSCAN.peticiones[i].get(j) + 
+                            "" + DiscoSCAN.tipo[i].get(j) + " ");
+                }
+            }
+            System.out.println();
+        }
     }
 
     static void reporteFinal(int n, String[] estado,

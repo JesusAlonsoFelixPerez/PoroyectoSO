@@ -17,8 +17,8 @@ public class Main {
         System.out.println("7- Planificacion Equitativa");
         System.out.println("8- Cerrar");
         System.out.println("----------------------------");
-        //eleccion = sc.nextInt();
-        eleccion = 5;
+        eleccion = sc.nextInt();
+        //eleccion = 5;
 
         switch (eleccion) {
             case 1:
