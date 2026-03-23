@@ -1,12 +1,20 @@
 package clases;
 
+import java.util.ArrayList;
+import DiscoDuro.Peticiones;
+
 public class procesos {
+
     private char id;
     private int tiempoRestante;
     private int estado;
     private int VecesUsado;
     private int intentoDesbloquear;
     private boolean esRepetido;
+    private ArrayList<Peticiones> peticiones;
+    private int cantidadPeticiones = (int) (Math.random() * 5) + 1;
+    private int prioridad;
+
 
     public procesos(char id) {
         this.id = id;
@@ -15,6 +23,14 @@ public class procesos {
         this.VecesUsado = 1;
         this.intentoDesbloquear = 0;
         this.esRepetido = false;
+        this.prioridad = (int) (Math.random() * 4)+1;
+        this.peticiones = new ArrayList<>();
+
+        for (int i = 0; i < cantidadPeticiones; i++) {
+            this.peticiones.add(new Peticiones());
+        }
+
+        this.peticiones.sort((a, b) -> Integer.compare(a.getSector(), b.getSector()));
     }
 
     public char getId() {
@@ -53,17 +69,56 @@ public class procesos {
         this.estado = estado;
     }
 
-    public boolean getEsRepetido() {return esRepetido;}
+    public int getPrioridad() {
+        return prioridad;
+    }
 
-    public void setEsRepetido(boolean esRepetido) {this.esRepetido = esRepetido;}
+    public int getCantidadPeticiones() {
+        return peticiones.size();
+    }
+
+    public void setPeticiones(ArrayList<Peticiones> peticiones) {
+        this.peticiones = peticiones;
+    }
+
+    public String toStringPlanificacionGarantizada() {
+        String encabezado = String.format("%-7s | %-10d | %-6d | ",
+                id, tiempoRestante, estado);
+
+        StringBuilder sb = new StringBuilder(encabezado);
+
+        if (estado == 0) {
+            for (int i = 0; i < cantidadPeticiones; i++) {
+                sb.append(String.format("(%02d%c)", peticiones.get(i).getSector(), peticiones.get(i).getTipo()));
+                if (i < cantidadPeticiones - 1) {
+                    sb.append(", ");
+                }
+            }
+        }
+
+        return sb.toString();
+    }
 
     @Override
     public String toString() {
-        return String.format("%-7s | %-10d | %-6s | %-7d | %-13d",
-                id,
-                tiempoRestante,
-                estado,
-                VecesUsado,
-                intentoDesbloquear);
+
+        String encabezado = String.format("%-7c | %-10d | %-6d | %-7d | %-12d | %-9d | ",
+                id, estado, tiempoRestante, VecesUsado, intentoDesbloquear, prioridad);
+
+        StringBuilder sb = new StringBuilder(encabezado);
+
+        if (estado == 0) {
+            for (int i = 0; i < cantidadPeticiones; i++) {
+                sb.append(String.format("(%02d%c)", peticiones.get(i).getSector(), peticiones.get(i).getTipo()));
+                if (i < cantidadPeticiones - 1) {
+                    sb.append(", ");
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    public ArrayList<Peticiones> getPeticiones() {
+        return peticiones;
     }
 }
