@@ -29,7 +29,7 @@ public class LoteriaApropiativa {
                                nombre, id, prioridad, boletos, tiempoEjecutado, tiempoRafaga);
         }
     }
-    
+
     private List<Proceso> procesos;
     private int totalBoletos;
     private Random random;
@@ -131,8 +131,7 @@ public class LoteriaApropiativa {
         planificador.agregarProceso(new Proceso(2, "Word", 2, 4));
         planificador.agregarProceso(new Proceso(3, "Fortnite", 8, 2));
         planificador.agregarProceso(new Proceso(4, "WhatsApp", 1, 5));
-        
-       
+
         planificador.LoteriaNoApropiativo();
     }
 }

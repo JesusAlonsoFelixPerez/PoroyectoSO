@@ -1,12 +1,14 @@
 package algoritmos;
 
 import java.util.ArrayList;
+
+import DiscoDuro.Peticiones;
 import clases.*;
 
 public class MultiplesColasPrioridad {
     public static void MCP() {
         System.out.println("\t=====Algoritmo Multiples Colas de Prioridad=====");
-        //listas de prioridad
+        //colas de prioridad
         ArrayList<procesos> Q1 = new ArrayList<>();
         ArrayList<procesos> Q2 = new ArrayList<>();
         ArrayList<procesos> Q3 = new ArrayList<>();
@@ -17,32 +19,43 @@ public class MultiplesColasPrioridad {
         ArrayList<procesos> nuncaEjecutados = new ArrayList<>();
         ArrayList<procesos> enEjecucion = new ArrayList<>();
 
+
         int tiempo = 0;
         int tiempoMonitoreo = (int) (Math.random() * 10) + 26;// genera un tiempo de monitoreo entre 25 a 35
         int numProcesosRandom = (int) (Math.random() * 10) + 1;//Generar un numero de procesos randoms entre 1 a 10 para usar en el for
-        int quantumBase = (int) (Math.random() * 4) + 2;
+        //int quantumBase = (int) (Math.random() * 4) + 2;
+        int quantumBase = 2;
         int CambioProcesos = 0;
 
         System.out.println("Tiempo Monitoreo: " + tiempoMonitoreo + " | Procesos Creados: " + numProcesosRandom + " | Quantum Base: " + quantumBase);
-        System.out.println("--------------------------------------------------");
-        System.out.println("Proceso | T.Restante | Estado | V.Usado | Int.Desbloeo");
+        System.out.println("-----------------------------------------------------------------------------");
+        System.out.println("Proceso | T.Restante | Estado | V.Usado | Int.Desbloeo | Prioridad | Peticiones");
 
         // Creando los procesos
         for (int i = 0; i < numProcesosRandom; i++) {
             procesos p = new procesos((char) (i + 65));
-            Q1.add(p);
+            p.getPrioridad();
+
+            if (p.getPrioridad() == 1){
+                Q1.add(p);
+            } else  if (p.getPrioridad() == 2){
+                Q2.add(p);
+            }  else  if (p.getPrioridad() == 3){
+                Q3.add(p);
+            }  else  if (p.getPrioridad() == 4){
+                Q4.add(p);
+            }
             nuncaEjecutados.add(p);
             enEjecucion.add(p);
             System.out.println(p.toString());
         }
-        System.out.println("--------------------------------------------------\n");
+        System.out.println("-------------------------------------------------------------------------\n");
 
         while (tiempo < tiempoMonitoreo && (!Q1.isEmpty() || !Q2.isEmpty() || !Q3.isEmpty() || !Q4.isEmpty())) {
             procesos actual = null;
             int colaActual = 0;
-            boolean todosRevisadosQ1 = false;
 
-            // Extraer proceso de la cola de mayor prioridad disponible
+
             if (!Q1.isEmpty()) {
                 actual = Q1.remove(0);
                 colaActual = 1;
@@ -60,7 +73,8 @@ public class MultiplesColasPrioridad {
             if (actual == null) break;
 
             // revisa si el proceso actual esta bloqueado
-            if (estaBloqueado(actual)) {
+            if (actual.getEstado() == 0) {
+                estaBloqueado(actual);
                 devolverACola(actual, colaActual, Q1, Q2, Q3, Q4); // Regresa a su cola
                 continue;
             }
@@ -77,7 +91,7 @@ public class MultiplesColasPrioridad {
                 tiempoAEjecutar = tiempoMonitoreo - tiempo;
             }
 
-            System.out.println("Tiempo [" + tiempo + "]\tSe ejecuta Proceso " + actual.getId() + " (Cola Q" + colaActual + ", A usado " + tiempoAEjecutar + " Unidades de Tiempo y le quedan: " + (actual.getTiempoRestante() - tiempoAEjecutar) + ")");
+            System.out.println("Tiempo [" + tiempo + "]\tSe ejecuta Proceso " + actual.getId() + " es de prioridad "  + colaActual+" (Cola Q" + colaActual + ", A usado " + tiempoAEjecutar + " Unidades de Tiempo y le quedan: " + (actual.getTiempoRestante() - tiempoAEjecutar) + ")");
 
             // Simula la ejecucion del proceso
             tiempo += tiempoAEjecutar;
@@ -118,36 +132,69 @@ public class MultiplesColasPrioridad {
         }
     }
 
-    private static boolean estaBloqueado(procesos p) {
-        if (p.getEstado() == 1) {
-            return false;
-        } else {
-            //genera un numero random de 1 a 0
-            int intentoDesbloquear = (int) (Math.random() * 2);
+    private static void estaBloqueado(procesos p) {
+        System.out.println("\n\t--- Ejecutando SES-HHDD (C-SCAN) para Proceso " + p.getId() + " ---");
 
-            if (intentoDesbloquear == 0) {//si fallo al desbloquear
-                p.setIntentoDesbloquear(p.getIntentoDesbloquear() + 1);//se le suma 1 a intentos debloquear
-                System.out.println("\tEl proceso " + p.getId() + " Sigue bloqueado.");
-                System.out.println("\t\tIntentos fallidos: " + p.getIntentoDesbloquear());
+        ArrayList<Peticiones> peticiones = p.getPeticiones(); // Asumo que tienes este Getter
+        if (peticiones.isEmpty()) return;
 
-                /*
-                si el proceso lleva 3 intentos sin lograr desbloquearse entonces
-                el proceso se muere, por lo que se acaba la simulacion
-                 */
-                if (p.getIntentoDesbloquear() >= 3) {
-                    System.out.println("Muerte del proceso " + p.getId() + " Por inanicion");
-                    System.exit(0);
+        // 1. Ordenar peticiones por sector (1-20)
+        peticiones.sort((a, b) -> Integer.compare(a.getSector(), b.getSector()));
+
+        int cabezaActual = 0; // La cabeza inicia en 0 según la imagen
+        int retardoGiro = 0;
+        int tiempoTransferencia = 0;
+
+        // C-SCAN: Solo atiende en sentido ascendente
+        System.out.println("\tAtendiendo peticiones en orden circular...");
+
+        // En C-SCAN, como empezamos en 0, todas están a la "derecha"
+        for (int i = 0; i < peticiones.size(); i++) {
+            Peticiones pet = peticiones.get(i);
+
+            // Cálculo de métricas
+            int distancia = Math.abs(cabezaActual - pet.getSector());
+            retardoGiro += distancia; // 1 por cada sector
+            tiempoTransferencia += (pet.getTipo() == 'L') ? 1 : 2; // L=1, E=2
+
+            System.out.println("\t -> Sector: " + pet.getSector() + " [" + pet.getTipo() + "] | Mov: " + distancia);
+
+            cabezaActual = pet.getSector();
+
+            // PUNTO 2 DE LA IMAGEN: Generar nuevas peticiones aleatorias (1 a 3)
+            if (Math.random() > 0.5 && peticiones.size() < 10) {
+                int nuevas = (int)(Math.random() * 3) + 1;
+                for (int n = 0; n < nuevas; n++) {
+                    int nuevoSec = (int)(Math.random() * 20) + 1;
+                    // Aquí podrías validar que no se repita el sector
+                    peticiones.add(new Peticiones());
                 }
-                return true;
-            } else {
-                //logro desbloquearse
-                System.out.println("\tEl proceso " + p.getId() + " logro desbloquearse");
-                p.setEstado(1);
-                p.setIntentoDesbloquear(0);
-                return false;
+                // Re-ordenar porque entraron nuevas
+                peticiones.sort((a, b) -> Integer.compare(a.getSector(), b.getSector()));
             }
         }
+
+        System.out.println("\t[Métricas Disco] Retardo Giro Total: " + retardoGiro);
+        System.out.println("\t[Métricas Disco] Tiempo Transferencia Total: " + tiempoTransferencia);
+
+        // Una vez atendidas, el proceso se desbloquea (Punto 3 de la imagen)
+        p.setEstado(1); // 1 = Listo/Ejecución
+        p.setPeticiones(new ArrayList<>()); // Limpiamos las peticiones atendidas
+        System.out.println("\tEl proceso " + p.getId() + " ahora está LISTO.");
     }
+
+    private static boolean Bloqueado (procesos p){
+        for (int i = 0; i < p.getCantidadPeticiones(); i++) {
+            for (int j = 0; j < p.getCantidadPeticiones(); j++) {
+                if(p.getPeticiones().get(i).getSector() == j){
+
+                }
+            }
+        }
+        return true;
+    }
+
+
 
     private static void reporteFinal(
             ArrayList<procesos> terminados,

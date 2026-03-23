@@ -19,6 +19,7 @@ public class Main {
         System.out.println("----------------------------");
         eleccion = sc.nextInt();
 
+
         switch (eleccion) {
             case 1:
                 eleccion = 0;

@@ -21,15 +21,19 @@ public class MasCorto {
         boolean[] ejecuto = new boolean[n];
         int[] intentos = new int[n];
 
+        DiscoSCAN.inicializar(n);
+
         for (int i = 0; i < n; i++) {
 
             tiempo[i] = r.nextInt(8) + 3;
 
             int est = r.nextInt(2) + 1;
-            if (est == 1)
+            if (est == 1) {
                 estado[i] = "Listo";
-            else
+            } else {
                 estado[i] = "Bloqueado";
+                DiscoSCAN.agregarPeticiones(i);
+            }
 
             ejecuto[i] = false;
             intentos[i] = 0;
@@ -44,26 +48,26 @@ public class MasCorto {
 
         while (tiempoActual < tiempoMonitoreo) {
 
+            boolean hayBloqueados = false;
             for (int i = 0; i < n; i++) {
                 if (estado[i].equals("Bloqueado")) {
-                    int desbloqueo = r.nextInt(2);
-                    if (desbloqueo == 1) {
+                    hayBloqueados = true;
+                    break;
+                }
+            }
+            
+            if (hayBloqueados) {
+                System.out.println("\n[SCAN] Atendiendo peticiones de disco");
+                DiscoSCAN.ejecutarSCAN();
+                
+                for (int i = 0; i < n; i++) {
+                    if (estado[i].equals("Bloqueado") && !DiscoSCAN.tienePeticiones(i)) {
                         estado[i] = "Listo";
                         intentos[i] = 0;
-                        System.out.println("P" + (i + 1) + " se desbloqueo");
-                    } else {
-                        intentos[i]++;
-                        System.out.println("Intento fallido de desbloqueo de P" + (i + 1));
-                    }
-
-
-                    if (intentos[i] == 3) {
-                        System.out.println("Muerte por inanicion de P" + (i + 1));
-                        estado[i] = "Terminado";
+                        System.out.println("P" + (i+1) + " desbloqueado");
                     }
                 }
             }
-
 
             int indice = -1;
             int menor = 999;
@@ -89,15 +93,27 @@ public class MasCorto {
             mostrarPCB(n, tiempo, estado);
         }
 
+        DiscoSCAN.mostrarEstadisticas();
         reporteFinal(n, estado, ejecuto, cambios);
     }
 
     static void mostrarPCB(int n, int[] tiempo, String[] estado) {
-        System.out.println("\nPCB ACTUAL:");
+        System.out.println("\nPCB:");
         for (int i = 0; i < n; i++) {
-            System.out.println("P" + (i + 1) +
+            System.out.print("P" + (i + 1) +
                     " | Restante: " + tiempo[i] +
                     " | Estado: " + estado[i]);
+            
+            System.out.print(" | Disco: ");
+            if (DiscoSCAN.peticiones[i].isEmpty()) {
+                System.out.print("ninguna");
+            } else {
+                for (int j = 0; j < DiscoSCAN.peticiones[i].size(); j++) {
+                    System.out.print(DiscoSCAN.peticiones[i].get(j) +
+                            "" + DiscoSCAN.tipo[i].get(j) + " ");
+                }
+            }
+            System.out.println();
         }
     }
 
@@ -119,9 +135,8 @@ public class MasCorto {
         }
 
         System.out.println("Procesos finalizados: " + finalizados);
-        System.out.println("Procesos que nunca entraron en ejecucion: " + nunca);
+        System.out.println("Procesos que nunca entraron: " + nunca);
         System.out.println("Procesos aun activos: " + activos);
         System.out.println("Cambios de proceso: " + cambios);
     }
 }
- 
