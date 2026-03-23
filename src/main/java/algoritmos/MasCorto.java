@@ -138,5 +138,6 @@ public class MasCorto {
         System.out.println("Procesos que nunca entraron: " + nunca);
         System.out.println("Procesos aun activos: " + activos);
         System.out.println("Cambios de proceso: " + cambios);
+        
     }
 }
