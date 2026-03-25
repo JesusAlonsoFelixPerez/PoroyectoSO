@@ -169,7 +169,7 @@ public class MultiplesColasPrioridad {
             }
 
             // atiende las peticiones que encuentra
-            Peticiones pet = lista.remove(indiceSiguiente); // quita las peticiones que encuentra por que ya sea tendieron
+            Peticiones pet = lista.remove(indiceSiguiente);
             int distancia = Math.abs(cabezaActual - pet.getSector());
             retardoGiro += distancia;
             tiempoTransferencia += (pet.getTipo() == 'L') ? 1 : 2;
