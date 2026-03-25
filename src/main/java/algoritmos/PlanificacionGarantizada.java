@@ -26,7 +26,7 @@ public class PlanificacionGarantizada {
         System.out.println("Tiempo Monitoreo: " + tiempoMonitoreo + " | Procesos: " + numProcesos + " | Quantum: " + quantum);
 
         System.out.println("--------------------------------------------------------------------");
-        System.out.println("Proceso | T.Restante | Estado | Peticiones");
+        System.out.println("Proceso | T.Restante | Estado | V.Usado | Int.Desbloeo");
 
         // Crear procesos
         for (int i = 0; i < numProcesos; i++) {
@@ -34,28 +34,29 @@ public class PlanificacionGarantizada {
             procesos.add(p);
             nuncaEjecutados.add(p);
             enEjecucion.add(p);
-            System.out.println(p.toStringPlanificacionGarantizada());
+            System.out.println(p.toString());
         }
         System.out.println("--------------------------------------------------------------------");
 
         // llevar el control de uso de la cpu
         HashMap<procesos, Integer> tiempoUsado = new HashMap<>();
-        int o = -1;
         for (procesos p : procesos) {//un bucle que recorre todos los procesos y a todos le agrega un valor inicial de 0
             tiempoUsado.put(p, 0);
-            o++;
-            System.out.println(o);
-            System.out.println("nunca ejecutados: " + nuncaEjecutados.get(o));
         }
 
-        int contador = 0;
-
-        while (tiempo < tiempoMonitoreo && !procesos.isEmpty() && contador != procesos.size()) {
+        while (tiempo < tiempoMonitoreo && !procesos.isEmpty()) {
             //entra en el bucle mientras mientras que el tiempo sea menor al tiempo de monitoreo y 
             // cuando los procesos no se encuentren vacios
 
-            procesos actual = nuncaEjecutados.remove(contador);
+            procesos actual = null;
 
+
+            for (procesos p : procesos) { //recorre todos lo proceso
+                if (p.getTiempoRestante() > 0) { //verifica si aun tiene tiempo restante
+                    actual = p;
+                    break;
+                }
+            }
 
             if (actual == null) break;
 
@@ -92,8 +93,6 @@ public class PlanificacionGarantizada {
                 terminados.add(actual);
                 enEjecucion.remove(actual);
             }
-            contador++;
-            System.out.println(contador);
         }
         //hace el reporte final
        reporteFinal(terminados,nuncaEjecutados,enEjecucion,cambiosProcesos);
@@ -155,8 +154,4 @@ public class PlanificacionGarantizada {
         System.out.println("==================================");
     }
 
-    private static void Bloqueado (procesos p) {
-
-
-    }
 }

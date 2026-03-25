@@ -19,15 +19,31 @@ public class procesos {
     public procesos(char id) {
         this.id = id;
         this.tiempoRestante = (int) (Math.random() * 8) + 3;
-        this.estado = (int)(Math.random() * 2);
+        this.estado = (int)(Math.random() * 1);
         this.VecesUsado = 1;
         this.intentoDesbloquear = 0;
         this.esRepetido = false;
         this.prioridad = (int) (Math.random() * 4)+1;
         this.peticiones = new ArrayList<>();
 
-        for (int i = 0; i < cantidadPeticiones; i++) {
-            this.peticiones.add(new Peticiones());
+        while (this.peticiones.size() < cantidadPeticiones) {
+            // Creamos una petición temporal para validar su sector
+            Peticiones nueva = new Peticiones();
+
+            // Verificamos si el sector de la 'nueva' ya existe en la lista actual
+            boolean yaExiste = false;
+            for (Peticiones p : this.peticiones) {
+                if (p.getSector() == nueva.getSector()) {
+                    yaExiste = true;
+                    break;
+                }
+            }
+
+            // Si no existe, la agregamos al bote
+            if (!yaExiste) {
+                this.peticiones.add(nueva);
+            }
+            // Si existía, el while vuelve a intentar hasta llenar la 'cantidadPeticiones'
         }
 
         this.peticiones.sort((a, b) -> Integer.compare(a.getSector(), b.getSector()));

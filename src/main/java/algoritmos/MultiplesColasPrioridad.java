@@ -22,7 +22,8 @@ public class MultiplesColasPrioridad {
 
         int tiempo = 0;
         int tiempoMonitoreo = (int) (Math.random() * 10) + 26;// genera un tiempo de monitoreo entre 25 a 35
-        int numProcesosRandom = (int) (Math.random() * 10) + 1;//Generar un numero de procesos randoms entre 1 a 10 para usar en el for
+        //int numProcesosRandom = (int) (Math.random() * 10) + 1;//Generar un numero de procesos randoms entre 1 a 10 para usar en el for
+        int numProcesosRandom = 5;//Generar un numero de procesos randoms entre 1 a 10 para usar en el for
         //int quantumBase = (int) (Math.random() * 4) + 2;
         int quantumBase = 2;
         int CambioProcesos = 0;
@@ -74,7 +75,7 @@ public class MultiplesColasPrioridad {
 
             // revisa si el proceso actual esta bloqueado
             if (actual.getEstado() == 0) {
-                estaBloqueado(actual);
+                tiempo += estaBloqueado(actual, tiempo);
                 devolverACola(actual, colaActual, Q1, Q2, Q3, Q4); // Regresa a su cola
                 continue;
             }
@@ -99,7 +100,6 @@ public class MultiplesColasPrioridad {
             actual.setVecesUsado(actual.getVecesUsado() + 1);
             CambioProcesos++;
 
-            // verificamos si el termino el proceso, si no termina la baja de prioridad
             if (actual.getTiempoRestante() <= 0) {
                 System.out.println("\t El proceso " + actual.getId() + " ha Terminado");
                 enEjecucion.remove(actual);
@@ -132,69 +132,70 @@ public class MultiplesColasPrioridad {
         }
     }
 
-    private static void estaBloqueado(procesos p) {
-        System.out.println("\n\t--- Ejecutando SES-HHDD (C-SCAN) para Proceso " + p.getId() + " ---");
+    private static int estaBloqueado(procesos p , int tiempo) {
+        System.out.println("\n\t--- Ejecutando C-SCAN para proceso " + p.getId() + " ---");
 
-        ArrayList<Peticiones> peticiones = p.getPeticiones(); // Asumo que tienes este Getter
-        if (peticiones.isEmpty()) return;
+        ArrayList<Peticiones> lista = p.getPeticiones();
+        if (lista.isEmpty()) return tiempo;
 
-        // 1. Ordenar peticiones por sector (1-20)
-        peticiones.sort((a, b) -> Integer.compare(a.getSector(), b.getSector()));
-
-        int cabezaActual = 0; // La cabeza inicia en 0 según la imagen
+        int cabezaActual = 0;
         int retardoGiro = 0;
         int tiempoTransferencia = 0;
 
-        // C-SCAN: Solo atiende en sentido ascendente
-        System.out.println("\tAtendiendo peticiones en orden circular...");
+        // se ejecuta hasta que las peticiones del poceso se encuentren vacias
+        while (!lista.isEmpty()) {
+            // ordena las peticiones
+            lista.sort((a, b) -> {
+                int res = Integer.compare(a.getSector(), b.getSector());
+                return (res == 0) ? Character.compare(a.getTipo(), b.getTipo()) : res;
+            });
 
-        // En C-SCAN, como empezamos en 0, todas están a la "derecha"
-        for (int i = 0; i < peticiones.size(); i++) {
-            Peticiones pet = peticiones.get(i);
+            // busca la sigueinte peticion mas cercana por delate
+            int indiceSiguiente = -1;
+            for (int i = 0; i < lista.size(); i++) {
+                if (lista.get(i).getSector() >= cabezaActual) {
+                    indiceSiguiente = i;
+                    break;
+                }
+            }
 
-            // Cálculo de métricas
+            // cuando llega al final se devuelve a 0
+            if (indiceSiguiente == -1) {
+                System.out.println("\t No hay peticiones adelante. Brazo salta de sector " + cabezaActual + " al sector 0.");
+                // el salto a 0 tamien consume tiempo
+                retardoGiro += cabezaActual;
+                cabezaActual = 0;
+                continue;
+            }
+
+            // atiende las peticiones que encuentra
+            Peticiones pet = lista.remove(indiceSiguiente); // quita las peticiones que encuentra por que ya sea tendieron
             int distancia = Math.abs(cabezaActual - pet.getSector());
-            retardoGiro += distancia; // 1 por cada sector
-            tiempoTransferencia += (pet.getTipo() == 'L') ? 1 : 2; // L=1, E=2
+            retardoGiro += distancia;
+            tiempoTransferencia += (pet.getTipo() == 'L') ? 1 : 2;
 
-            System.out.println("\t -> Sector: " + pet.getSector() + " [" + pet.getTipo() + "] | Mov: " + distancia);
-
+            System.out.println("\tAtendiendo Sector: " + pet.getSector() + pet.getTipo() + " | Mov: " + distancia);
             cabezaActual = pet.getSector();
 
-            // PUNTO 2 DE LA IMAGEN: Generar nuevas peticiones aleatorias (1 a 3)
-            if (Math.random() > 0.5 && peticiones.size() < 10) {
-                int nuevas = (int)(Math.random() * 3) + 1;
-                for (int n = 0; n < nuevas; n++) {
-                    int nuevoSec = (int)(Math.random() * 20) + 1;
-                    // Aquí podrías validar que no se repita el sector
-                    peticiones.add(new Peticiones());
-                }
-                // Re-ordenar porque entraron nuevas
-                peticiones.sort((a, b) -> Integer.compare(a.getSector(), b.getSector()));
-            }
-        }
+            // probabilidad de generar nuevas peticiones
+            if (Math.random() > 0.8 && lista.size() < 10) {
+                Peticiones nueva = new Peticiones();
+                // revisa que las peticiones no estan repetidas
+                boolean existe = false;
+                for(Peticiones ex : lista) { if(ex.getSector() == nueva.getSector()) existe = true; }
 
-        System.out.println("\t[Métricas Disco] Retardo Giro Total: " + retardoGiro);
-        System.out.println("\t[Métricas Disco] Tiempo Transferencia Total: " + tiempoTransferencia);
-
-        // Una vez atendidas, el proceso se desbloquea (Punto 3 de la imagen)
-        p.setEstado(1); // 1 = Listo/Ejecución
-        p.setPeticiones(new ArrayList<>()); // Limpiamos las peticiones atendidas
-        System.out.println("\tEl proceso " + p.getId() + " ahora está LISTO.");
-    }
-
-    private static boolean Bloqueado (procesos p){
-        for (int i = 0; i < p.getCantidadPeticiones(); i++) {
-            for (int j = 0; j < p.getCantidadPeticiones(); j++) {
-                if(p.getPeticiones().get(i).getSector() == j){
-
+                if(!existe) {
+                    lista.add(nueva);
+                    System.out.println("\t\tNueva petición: " + nueva.getSector() + nueva.getTipo());
                 }
             }
         }
-        return true;
+
+        System.out.println("\t[Métricas Disco] Retardo: " + retardoGiro + " | Transferencia: " + tiempoTransferencia);
+        p.setEstado(1);
+        System.out.println("\tEl proceso " + p.getId() + " terminó sus peticiones");
+        return tiempo + retardoGiro;
     }
-
-
 
     private static void reporteFinal(
             ArrayList<procesos> terminados,
