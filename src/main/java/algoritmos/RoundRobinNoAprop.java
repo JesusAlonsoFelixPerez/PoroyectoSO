@@ -7,23 +7,23 @@ public class RoundRobinNoAprop {
     static Random r = new Random();
 
     static class Peticion {
-        int sector;
-        char tipo;
-
+        int sector; //número de sector del disco
+        char tipo; // para saber si es L o E
+    //  crear una petición.
         Peticion(int sector, char tipo) {
             this.sector = sector;
             this.tipo = tipo;
         }
 
         public String toString() {
-            return sector + "" + tipo;
+            return sector + "" + tipo; // para que la peticion salga numero y la peticion
         }
     }
 
     static class Disco {
         int cabeza = 0;
-        List<Peticion> colaActual = new ArrayList<>();
-        List<Peticion> colaNueva = new ArrayList<>();
+        List<Peticion> colaActual = new ArrayList<>();//peticiones en ejecucion
+        List<Peticion> colaNueva = new ArrayList<>();//nuevas peticiones 
         int totalPeticiones = 0;
         int tiempoTotal = 0;
         List<String> atendidas = new ArrayList<>();
@@ -39,14 +39,14 @@ public class RoundRobinNoAprop {
         String[] estado = new String[n];
         Disco[] discos = new Disco[n];
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) { //crea los procesos 
 
             tiempo[i] = r.nextInt(8) + 3;
             estado[i] = (r.nextInt(2) == 0) ? "Listo" : "Bloqueado";
 
             discos[i] = new Disco();
 
-            if (estado[i].equals("Bloqueado")) {
+            if (estado[i].equals("Bloqueado")) {// se genera la peticion si esta bloqueado 
                 int num = r.nextInt(5) + 1;
                 for (int j = 0; j < num; j++) {
                     agregarPeticion(discos[i]);
@@ -94,7 +94,7 @@ public class RoundRobinNoAprop {
                 }
             }
 
-            //  EJECUTA COMPLETO (NO BRINCA)
+            //  EJECUTA COMPLETO 
             if (estado[indice].equals("Listo")) {
 
                 System.out.println("\nP" + (indice + 1) + " ejecutando COMPLETO...");
@@ -106,7 +106,7 @@ public class RoundRobinNoAprop {
                 System.out.println("P" + (indice + 1) +
                         " terminó (CPU: " + tiempoEjec + ")");
 
-                // 📊 REPORTE DEL DISCO
+                //  REPORTE DEL DISCO
                 System.out.println("Peticiones atendidas: " + discos[indice].atendidas);
                 System.out.println("Tiempo total en disco: " + discos[indice].tiempoTotal);
             }
@@ -127,7 +127,7 @@ public class RoundRobinNoAprop {
 
         if (d.colaActual.isEmpty()) return true;
 
-        d.colaActual.sort(Comparator.comparingInt(p -> p.sector));
+        d.colaActual.sort(Comparator.comparingInt(p -> p.sector));// ordena las peticiones de menor a mayor 
 
         Peticion p = d.colaActual.remove(0);
 
@@ -149,7 +149,7 @@ public class RoundRobinNoAprop {
         d.cabeza = p.sector;
 
         // nuevas peticiones
-        if (r.nextBoolean()) {
+        if (r.nextBoolean()) {// seecalcula si se crea o no nuevas peticiones
 
             int nuevas = r.nextInt(3) + 1;
 
@@ -167,7 +167,7 @@ public class RoundRobinNoAprop {
         return false;
     }
 
-    static void agregarPeticion(Disco d) {
+    static void agregarPeticion(Disco d) {// peticion inicial 
         Peticion p = new Peticion(r.nextInt(20) + 1,
                 r.nextBoolean() ? 'L' : 'E');
 
