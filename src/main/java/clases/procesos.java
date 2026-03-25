@@ -26,10 +26,24 @@ public class procesos {
         this.prioridad = (int) (Math.random() * 4)+1;
         this.peticiones = new ArrayList<>();
 
-        for (int i = 0; i < cantidadPeticiones; i++) {
-            this.peticiones.add(new Peticiones());
-        }
+        while (this.peticiones.size() < cantidadPeticiones) {
+            Peticiones nueva = new Peticiones();
 
+            // verifica si ya esxite una peticion en el mismo sector
+            boolean yaExiste = false;
+            for (Peticiones p : this.peticiones) {
+                if (p.getSector() == nueva.getSector()) {
+                    yaExiste = true;
+                    break;
+                }
+            }
+
+            if (!yaExiste) {
+                // si la peticion no se encuentra repetida se agrega a peticiones
+                this.peticiones.add(nueva);
+            }
+        }
+        // ordena las peticiones
         this.peticiones.sort((a, b) -> Integer.compare(a.getSector(), b.getSector()));
     }
 
@@ -103,7 +117,7 @@ public class procesos {
     public String toString() {
 
         String encabezado = String.format("%-7c | %-10d | %-6d | %-7d | %-12d | %-9d | ",
-                id, estado, tiempoRestante, VecesUsado, intentoDesbloquear, prioridad);
+                id, tiempoRestante, estado, VecesUsado, intentoDesbloquear, prioridad);
 
         StringBuilder sb = new StringBuilder(encabezado);
 
