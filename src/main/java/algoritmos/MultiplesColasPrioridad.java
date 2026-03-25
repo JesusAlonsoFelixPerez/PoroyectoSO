@@ -186,7 +186,7 @@ public class MultiplesColasPrioridad {
 
                 if(!existe) {
                     lista.add(nueva);
-                    System.out.println("\t\tNueva petición: " + nueva.getSector() + nueva.getTipo());
+                    System.out.println("\t\t+ Nueva petición: " + nueva.getSector() + nueva.getTipo());
                 }
             }
         }

@@ -117,7 +117,7 @@ public class procesos {
     public String toString() {
 
         String encabezado = String.format("%-7c | %-10d | %-6d | %-7d | %-12d | %-9d | ",
-                id, estado, tiempoRestante, VecesUsado, intentoDesbloquear, prioridad);
+                id, tiempoRestante, estado, VecesUsado, intentoDesbloquear, prioridad);
 
         StringBuilder sb = new StringBuilder(encabezado);
 
