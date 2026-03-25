@@ -77,7 +77,7 @@ public class RoundRobinNoAprop {
                 continue;
             }
 
-            // 🔥 SI ESTÁ BLOQUEADO → SE QUEDA AQUÍ HASTA DESBLOQUEARSE
+            // SI ESTÁ BLOQUEADO → SE QUEDA AQUÍ HASTA DESBLOQUEARSE
             if (estado[indice].equals("Bloqueado")) {
 
                 System.out.println("\nP" + (indice + 1) + " en SES-HHDD...");
@@ -94,7 +94,7 @@ public class RoundRobinNoAprop {
                 }
             }
 
-            // 🔥 EJECUTA COMPLETO (NO BRINCA)
+            //  EJECUTA COMPLETO (NO BRINCA)
             if (estado[indice].equals("Listo")) {
 
                 System.out.println("\nP" + (indice + 1) + " ejecutando COMPLETO...");
