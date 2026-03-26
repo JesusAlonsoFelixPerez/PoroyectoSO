@@ -56,7 +56,15 @@ public class MasCorto {
                 }
             }
             
-            if (hayBloqueados) {
+            boolean hayPeticionesDisco = false;
+            for (int i = 0; i < n; i++) {
+                if (DiscoSCAN.tienePeticiones(i)) {
+                    hayPeticionesDisco = true;
+                    break;
+                }
+            }
+            
+            if (hayBloqueados || hayPeticionesDisco) {
                 System.out.println("\n[SCAN] Atendiendo peticiones de disco");
                 DiscoSCAN.ejecutarSCAN();
                 
@@ -80,6 +88,9 @@ public class MasCorto {
             }
 
             if (indice == -1) {
+                if (hayPeticionesDisco) {
+                    continue;
+                }
                 break;
             }
 
@@ -89,8 +100,35 @@ public class MasCorto {
             tiempo[indice] = 0;
             estado[indice] = "Terminado";
             ejecuto[indice] = true;
+            DiscoSCAN.marcarProcesoTerminado(indice);
             cambios++;
             mostrarPCB(n, tiempo, estado);
+            
+            // Después de que un proceso termina, generar nuevas peticiones para otros procesos
+            for (int i = 0; i < n; i++) {
+                if (estado[i].equals("Listo") && !DiscoSCAN.tienePeticiones(i)) {
+                    // 50% de probabilidad de generar peticiones
+                    if (r.nextBoolean()) {
+                        DiscoSCAN.agregarPeticiones(i);
+                        estado[i] = "Bloqueado";
+                        System.out.println("P" + (i+1) + " se bloquea por nuevas peticiones");
+                    }
+                }
+            }
+        }
+
+        // Atender peticiones pendientes finales
+        boolean hayPendientes = false;
+        for (int i = 0; i < n; i++) {
+            if (DiscoSCAN.tienePeticiones(i)) {
+                hayPendientes = true;
+                break;
+            }
+        }
+        
+        if (hayPendientes) {
+            System.out.println("\n[SCAN] Atendiendo peticiones pendientes finales");
+            DiscoSCAN.ejecutarSCAN();
         }
 
         DiscoSCAN.mostrarEstadisticas();

@@ -30,7 +30,7 @@ public class RoundRobinAprop {
             ejecuto[i] = false;
             
             if (estado[i].equals("Bloqueado")) {
-                DiscoSCAN.agregarPeticiones(i);
+              //  DiscoSCAN.agregarPeticiones(i);
             }
 
             System.out.println("P" + (i + 1) +

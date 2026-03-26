@@ -36,7 +36,7 @@ public class PlanificacionEquitativa {
             intentos[i] = 0;
             
             if (estado[i].equals("Bloqueado")) {
-                DiscoSCAN.agregarPeticiones(i);
+              //  DiscoSCAN.agregarPeticiones(i);
             }
 
             System.out.println("P" + (i + 1) +
